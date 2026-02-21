@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: "3DMates - Local 3D Fabrication Network",
   description:
     "Connect with local 3D printing providers in Charlotte, NC. Post jobs, find providers, and get your parts made.",
+  icons: {
+    icon: "/brand/Emblem.svg",
+    apple: "/brand/Emblem.svg",
+  },
 };
 
 export default function RootLayout({
