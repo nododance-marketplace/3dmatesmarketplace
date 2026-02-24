@@ -13,6 +13,7 @@ const jobSchema = z.object({
   budgetMax: z.number().int().min(0).optional(),
   deadline: z.string().optional(),
   city: z.string().default("Charlotte"),
+  imageUrls: z.array(z.string().url()).max(5).default([]),
 });
 
 // GET /api/jobs — public browse
@@ -108,6 +109,17 @@ export async function POST(req: NextRequest) {
         status: "OPEN",
       },
     });
+
+    // Create reference image records if any
+    if (data.imageUrls.length > 0) {
+      await prisma.jobRequestImage.createMany({
+        data: data.imageUrls.map((url, i) => ({
+          jobId: job.id,
+          imageUrl: url,
+          sortOrder: i,
+        })),
+      });
+    }
 
     return NextResponse.json(job, { status: 201 });
   } catch (error) {

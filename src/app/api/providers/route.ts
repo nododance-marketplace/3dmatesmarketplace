@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
           orderBy: { sortOrder: "asc" },
         },
         receivedReviews: {
+          where: { hidden: false },
           select: { rating: true },
         },
       },
@@ -90,6 +91,7 @@ export async function GET(req: NextRequest) {
         materials: parseJsonArray(p.materials),
         processes: parseJsonArray(p.processes),
         capabilities: parseJsonArray(p.capabilities),
+        photoUrl: p.photoUrl || null,
         thumbnailUrl: p.portfolio[0]?.imageUrl || null,
         avgRating: Math.round(avgRating * 10) / 10,
         reviewCount: reviews.length,

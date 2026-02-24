@@ -35,6 +35,7 @@ export async function GET(
           orderBy: { createdAt: "desc" },
         },
         reviews: true,
+        images: { orderBy: { sortOrder: "asc" } },
       },
     });
 

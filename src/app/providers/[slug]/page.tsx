@@ -20,7 +20,7 @@ async function getProvider(slug: string) {
     where: { slug, status: "APPROVED" },
     include: {
       portfolio: { orderBy: { sortOrder: "asc" } },
-      receivedReviews: { select: { rating: true } },
+      receivedReviews: { where: { hidden: false }, select: { rating: true } },
     },
   });
   return provider;
@@ -44,7 +44,19 @@ export default async function ProviderProfilePage({ params }: Props) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 flex items-start gap-4">
+        {provider.photoUrl ? (
+          <img
+            src={provider.photoUrl}
+            alt={provider.displayName}
+            className="h-20 w-20 flex-shrink-0 rounded-full border-2 border-brand-border object-cover"
+          />
+        ) : (
+          <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border-2 border-brand-border bg-brand-surface text-2xl text-brand-muted">
+            {provider.displayName.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div>
         <h1 className="text-3xl font-bold">{provider.displayName}</h1>
         {provider.headline && (
           <p className="mt-1 text-lg text-brand-muted">{provider.headline}</p>
@@ -60,6 +72,7 @@ export default async function ProviderProfilePage({ params }: Props) {
               </span>
             </>
           )}
+        </div>
         </div>
       </div>
 

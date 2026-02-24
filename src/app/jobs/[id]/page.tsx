@@ -102,6 +102,20 @@ export default function JobDetailPage() {
         )}
       </div>
 
+      {/* Reference Images */}
+      {job.images && job.images.length > 0 && (
+        <div className="mb-6">
+          <h2 className="mb-2 text-sm font-medium text-brand-muted">Reference Images</h2>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {job.images.map((img: any) => (
+              <div key={img.id} className="aspect-square overflow-hidden rounded border border-brand-border">
+                <img src={img.imageUrl} alt={img.caption || ""} className="h-full w-full object-cover" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Owner actions */}
       {job.isOwner && job.status === "IN_PROGRESS" && (
         <div className="mb-6">

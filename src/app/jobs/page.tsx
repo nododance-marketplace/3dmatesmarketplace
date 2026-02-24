@@ -170,6 +170,8 @@ function PostJobForm({ onPosted }: { onPosted: () => void }) {
     budgetMax: "",
     deadline: "",
   });
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -188,6 +190,7 @@ function PostJobForm({ onPosted }: { onPosted: () => void }) {
         budgetMin: form.budgetMin ? parseInt(form.budgetMin) : undefined,
         budgetMax: form.budgetMax ? parseInt(form.budgetMax) : undefined,
         deadline: form.deadline || undefined,
+        imageUrls,
       }),
     });
 
@@ -278,6 +281,54 @@ function PostJobForm({ onPosted }: { onPosted: () => void }) {
             className="rounded border border-brand-border bg-brand-bg px-3 py-2 text-sm text-brand-text focus:border-cyan focus:outline-none"
           />
         </div>
+        {/* Reference Images */}
+        <div>
+          <label className="mb-1 block text-sm text-brand-muted">
+            Reference Images (optional, max 5)
+          </label>
+          {imageUrls.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {imageUrls.map((url, i) => (
+                <div key={i} className="relative h-20 w-20 overflow-hidden rounded border border-brand-border">
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrls((prev) => prev.filter((_, j) => j !== i))}
+                    className="absolute right-0.5 top-0.5 rounded-full bg-black/60 px-1.5 text-xs text-white hover:bg-black/80"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {imageUrls.length < 5 && (
+            <label className="block cursor-pointer rounded border border-dashed border-brand-border-light bg-brand-bg px-4 py-3 text-center text-sm text-brand-muted transition hover:border-cyan hover:text-brand-text">
+              {uploadingImage ? "Uploading..." : "Add reference image"}
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingImage}
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || imageUrls.length >= 5) return;
+                  setUploadingImage(true);
+                  const fd = new FormData();
+                  fd.append("file", file);
+                  const res = await fetch("/api/upload/job-image", { method: "POST", body: fd });
+                  if (res.ok) {
+                    const data = await res.json();
+                    setImageUrls((prev) => [...prev, data.imageUrl]);
+                  }
+                  setUploadingImage(false);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+        </div>
+
         {error && <p className="text-sm text-red-400">{error}</p>}
         <button
           type="submit"

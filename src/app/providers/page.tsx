@@ -24,6 +24,7 @@ interface Provider {
   materials: string[];
   processes: string[];
   capabilities: string[];
+  photoUrl?: string | null;
   thumbnailUrl?: string | null;
   avgRating: number;
   reviewCount: number;
@@ -225,9 +226,14 @@ export default function ProvidersPage() {
                     />
                   </div>
                 )}
-                <h3 className="font-semibold text-brand-text">
-                  {p.displayName}
-                </h3>
+                <div className="flex items-center gap-2">
+                  {p.photoUrl && (
+                    <img src={p.photoUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+                  )}
+                  <h3 className="font-semibold text-brand-text">
+                    {p.displayName}
+                  </h3>
+                </div>
                 {p.headline && (
                   <p className="mt-1 text-sm text-brand-muted">{p.headline}</p>
                 )}

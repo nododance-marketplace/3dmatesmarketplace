@@ -131,7 +131,7 @@ export async function GET(req: NextRequest) {
     }
 
     const reviews = await prisma.review.findMany({
-      where,
+      where: { ...where, hidden: false },
       include: {
         reviewer: {
           select: { name: true, image: true },

@@ -106,6 +106,7 @@ model ProviderProfile {
   instagramUrl String?
   contactEmail String?
   phone        String?
+  photoUrl     String?
 
   status    String   @default("PENDING")
   createdAt DateTime @default(now())
@@ -150,9 +151,23 @@ model JobRequest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  customer  User          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer  User              @relation(fields: [customerId], references: [id], onDelete: Cascade)
   responses JobResponse[]
   reviews   Review[]
+  images    JobRequestImage[]
+}
+
+// ── Job request images ─────────────────────────────────────
+
+model JobRequestImage {
+  id        String   @id @default(cuid())
+  jobId     String
+  imageUrl  String
+  caption   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  job JobRequest @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
 // ── Job responses ────────────────────────────────────────────
@@ -201,6 +216,7 @@ model Review {
   reviewerRole String
   rating       Int
   text         String?
+  hidden       Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   job      JobRequest       @relation(fields: [jobId], references: [id], onDelete: Cascade)

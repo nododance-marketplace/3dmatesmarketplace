@@ -18,6 +18,8 @@ export default function EditProviderProfilePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const [form, setForm] = useState({
     displayName: "",
@@ -71,6 +73,7 @@ export default function EditProviderProfilePage() {
             phone: data.phone || "",
           });
           setPortfolio(data.portfolio || []);
+          setPhotoUrl(data.photoUrl || null);
         } else {
           // Pre-fill contact email from session
           setForm((f) => ({
@@ -136,6 +139,24 @@ export default function EditProviderProfilePage() {
     e.target.value = "";
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload/provider-profile-photo", {
+      method: "POST",
+      body: fd,
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setPhotoUrl(data.photoUrl);
+    }
+    setUploadingPhoto(false);
+    e.target.value = "";
+  };
+
   if (status === "loading" || loading)
     return (
       <div className="py-20 text-center text-brand-muted">Loading...</div>
@@ -148,6 +169,34 @@ export default function EditProviderProfilePage() {
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Profile photo */}
+        <div className="space-y-4 rounded-lg border border-brand-border bg-brand-surface p-4">
+          <h2 className="font-semibold">Profile Photo</h2>
+          <div className="flex items-center gap-4">
+            {photoUrl ? (
+              <img
+                src={photoUrl}
+                alt="Profile"
+                className="h-24 w-24 rounded-full object-cover border-2 border-brand-border"
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-brand-border bg-brand-bg text-3xl text-brand-muted">
+                {form.displayName?.charAt(0)?.toUpperCase() || "?"}
+              </div>
+            )}
+            <label className="cursor-pointer rounded border border-dashed border-brand-border-light bg-brand-bg px-4 py-3 text-sm text-brand-muted transition hover:border-cyan hover:text-brand-text">
+              {uploadingPhoto ? "Uploading..." : photoUrl ? "Change Photo" : "Upload Photo"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                disabled={uploadingPhoto}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+
         {/* Basic info */}
         <div className="space-y-4 rounded-lg border border-brand-border bg-brand-surface p-4">
           <h2 className="font-semibold">Basic Info</h2>
