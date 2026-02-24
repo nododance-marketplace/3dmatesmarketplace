@@ -6,16 +6,17 @@ import prisma from "@/lib/prisma";
 // POST /api/jobs/[id]/complete — customer-only: mark job completed
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const job = await prisma.jobRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
@@ -34,7 +35,7 @@ export async function POST(
     }
 
     await prisma.jobRequest.update({
-      where: { id: params.id },
+      where: { id },
       data: { status: "COMPLETED" },
     });
 

@@ -1,9 +1,10 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ── Satoshi font import ─────────────────────────────────── */
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
 
 /* ── Base dark theme ─────────────────────────────────────── */
 :root {

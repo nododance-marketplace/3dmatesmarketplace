@@ -6,12 +6,13 @@ import prisma from "@/lib/prisma";
 // GET /api/jobs/[id] — public job detail
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     const job = await prisma.jobRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         customer: {
           select: { id: true, name: true, image: true },

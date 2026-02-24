@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -10,17 +10,18 @@ const acceptSchema = z.object({
 
 // POST /api/jobs/[id]/accept — customer-only: accept a response
 export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const job = await prisma.jobRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
@@ -38,7 +39,7 @@ export async function POST(
       );
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const parsed = acceptSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
@@ -51,7 +52,7 @@ export async function POST(
 
     // Verify the response belongs to this job
     const response = await prisma.jobResponse.findFirst({
-      where: { id: responseId, jobId: params.id },
+      where: { id: responseId, jobId: id },
     });
     if (!response) {
       return NextResponse.json(
@@ -63,7 +64,7 @@ export async function POST(
     // Accept the response, decline others, update job status
     await prisma.$transaction([
       prisma.jobRequest.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           status: "IN_PROGRESS",
           acceptedResponseId: responseId,
@@ -75,7 +76,7 @@ export async function POST(
       }),
       prisma.jobResponse.updateMany({
         where: {
-          jobId: params.id,
+          jobId: id,
           id: { not: responseId },
         },
         data: { status: "DECLINED" },

@@ -13,9 +13,10 @@ const responseSchema = z.object({
 // POST /api/jobs/[id]/responses — provider-only: create response
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -28,7 +29,7 @@ export async function POST(
     }
 
     const job = await prisma.jobRequest.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!job) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
@@ -49,7 +50,7 @@ export async function POST(
     // Check for duplicate response
     const existing = await prisma.jobResponse.findFirst({
       where: {
-        jobId: params.id,
+        jobId: id,
         providerUserId: session.user.id,
       },
     });
@@ -78,7 +79,7 @@ export async function POST(
 
     const response = await prisma.jobResponse.create({
       data: {
-        jobId: params.id,
+        jobId: id,
         providerUserId: session.user.id,
         providerId: providerProfile?.id || null,
         message: data.message,
