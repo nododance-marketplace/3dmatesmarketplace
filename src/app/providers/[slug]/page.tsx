@@ -12,7 +12,7 @@ import PortfolioCarousel from "@/components/PortfolioCarousel";
 import ProviderReviews from "@/components/ProviderReviews";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function getProvider(slug: string) {
@@ -27,7 +27,8 @@ async function getProvider(slug: string) {
 }
 
 export default async function ProviderProfilePage({ params }: Props) {
-  const provider = await getProvider(params.slug);
+  const { slug } = await params;
+  const provider = await getProvider(slug);
   if (!provider) notFound();
 
   const materials = parseJsonArray(provider.materials);
@@ -167,7 +168,7 @@ export default async function ProviderProfilePage({ params }: Props) {
       {/* Reviews */}
       <div>
         <h2 className="mb-3 text-lg font-semibold">Reviews</h2>
-        <ProviderReviews slug={params.slug} />
+        <ProviderReviews slug={slug} />
       </div>
     </div>
   );
