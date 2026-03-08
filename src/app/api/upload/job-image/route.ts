@@ -27,6 +27,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { error: "Image uploads are not configured. Please add Cloudinary credentials." },
+        { status: 500 }
+      );
+    }
+
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -53,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ imageUrl: result.secure_url }, { status: 200 });
   } catch (error) {
-    if (process.env.NODE_ENV === "development") console.error(error);
+    console.error("Job image upload error:", error);
     return NextResponse.json(
       { error: "Upload failed" },
       { status: 500 }

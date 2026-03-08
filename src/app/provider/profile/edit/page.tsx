@@ -20,6 +20,7 @@ export default function EditProviderProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const [form, setForm] = useState({
     displayName: "",
@@ -101,10 +102,15 @@ export default function EditProviderProfilePage() {
     setError("");
     setSuccess("");
 
+    // Include photoUrl and any portfolio images uploaded before the profile was saved
+    const pendingPortfolioImages = portfolio
+      .filter((img: any) => img.pending)
+      .map((img: any) => ({ imageUrl: img.imageUrl, caption: img.caption }));
+
     const res = await fetch("/api/provider-profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, photoUrl, pendingPortfolioImages }),
     });
 
     if (res.ok) {
@@ -121,19 +127,27 @@ export default function EditProviderProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError("");
 
     const fd = new FormData();
     fd.append("file", file);
     fd.append("caption", "");
 
-    const res = await fetch("/api/upload/provider-portfolio-image", {
-      method: "POST",
-      body: fd,
-    });
+    try {
+      const res = await fetch("/api/upload/provider-portfolio-image", {
+        method: "POST",
+        body: fd,
+      });
 
-    if (res.ok) {
-      const img = await res.json();
-      setPortfolio((p) => [...p, img]);
+      if (res.ok) {
+        const img = await res.json();
+        setPortfolio((p) => [...p, img]);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setUploadError(data.error || "Failed to upload image. Please try again.");
+      }
+    } catch {
+      setUploadError("Network error. Please check your connection and try again.");
     }
     setUploading(false);
     e.target.value = "";
@@ -143,15 +157,26 @@ export default function EditProviderProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingPhoto(true);
+    setUploadError("");
+
     const fd = new FormData();
     fd.append("file", file);
-    const res = await fetch("/api/upload/provider-profile-photo", {
-      method: "POST",
-      body: fd,
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setPhotoUrl(data.photoUrl);
+
+    try {
+      const res = await fetch("/api/upload/provider-profile-photo", {
+        method: "POST",
+        body: fd,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPhotoUrl(data.photoUrl);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setUploadError(data.error || "Failed to upload photo. Please try again.");
+      }
+    } catch {
+      setUploadError("Network error. Please check your connection and try again.");
     }
     setUploadingPhoto(false);
     e.target.value = "";
@@ -167,6 +192,8 @@ export default function EditProviderProfilePage() {
       <h1 className="mb-6 text-2xl font-bold">
         {form.displayName ? "Edit" : "Create"} Provider Profile
       </h1>
+
+      {error && <p className="mb-4 rounded border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-400">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Profile photo */}
@@ -184,16 +211,22 @@ export default function EditProviderProfilePage() {
                 {form.displayName?.charAt(0)?.toUpperCase() || "?"}
               </div>
             )}
-            <label className="cursor-pointer rounded border border-dashed border-brand-border-light bg-brand-bg px-4 py-3 text-sm text-brand-muted transition hover:border-cyan hover:text-brand-text">
-              {uploadingPhoto ? "Uploading..." : photoUrl ? "Change Photo" : "Upload Photo"}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                disabled={uploadingPhoto}
-                className="hidden"
-              />
-            </label>
+            <div>
+              <label className="cursor-pointer rounded border border-dashed border-brand-border-light bg-brand-bg px-4 py-3 text-sm text-brand-muted transition hover:border-cyan hover:text-brand-text">
+                {uploadingPhoto ? "Uploading..." : photoUrl ? "Change Photo" : "Upload Photo"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handlePhotoUpload}
+                  disabled={uploadingPhoto}
+                  className="hidden"
+                />
+              </label>
+              {uploadingPhoto && <p className="mt-2 text-xs text-cyan">Uploading photo...</p>}
+              {uploadError && !uploading && !uploadingPhoto && (
+                <p className="mt-2 text-xs text-red-400">{uploadError}</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -415,15 +448,16 @@ export default function EditProviderProfilePage() {
           )}
           <div>
             <label className="cursor-pointer rounded border border-dashed border-brand-border-light bg-brand-bg px-4 py-6 text-center text-sm text-brand-muted transition hover:border-cyan hover:text-brand-text block">
-              {uploading ? "Uploading..." : "Click to upload an image"}
+              {uploading ? "Uploading image..." : `Click to upload an image (${portfolio.length}/10)`}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 onChange={handleUpload}
-                disabled={uploading}
+                disabled={uploading || portfolio.length >= 10}
                 className="hidden"
               />
             </label>
+            {uploading && <p className="mt-2 text-center text-xs text-cyan">Uploading...</p>}
           </div>
         </div>
 

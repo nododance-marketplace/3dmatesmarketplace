@@ -24,16 +24,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const provider = await prisma.providerProfile.findUnique({
-      where: { userId: session.user.id },
-    });
-    if (!provider) {
-      return NextResponse.json(
-        { error: "Provider profile not found" },
-        { status: 404 }
-      );
-    }
-
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
@@ -41,6 +31,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "No file provided" },
         { status: 400 }
+      );
+    }
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { error: "Image uploads are not configured. Please add Cloudinary credentials." },
+        { status: 500 }
       );
     }
 
@@ -68,15 +65,22 @@ export async function POST(req: NextRequest) {
         .end(buffer);
     });
 
-    // Update provider profile with new photo URL
-    await prisma.providerProfile.update({
-      where: { id: provider.id },
-      data: { photoUrl: result.secure_url },
+    // If provider profile already exists, update it immediately
+    const provider = await prisma.providerProfile.findUnique({
+      where: { userId: session.user.id },
     });
+    if (provider) {
+      await prisma.providerProfile.update({
+        where: { id: provider.id },
+        data: { photoUrl: result.secure_url },
+      });
+    }
+    // If no profile yet, just return the URL — the frontend will
+    // include it when the profile is saved for the first time.
 
     return NextResponse.json({ photoUrl: result.secure_url }, { status: 200 });
   } catch (error) {
-    if (process.env.NODE_ENV === "development") console.error(error);
+    console.error("Profile photo upload error:", error);
     return NextResponse.json(
       { error: "Upload failed" },
       { status: 500 }

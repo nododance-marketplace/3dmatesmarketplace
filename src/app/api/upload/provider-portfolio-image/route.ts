@@ -24,16 +24,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const provider = await prisma.providerProfile.findUnique({
-      where: { userId: session.user.id },
-    });
-    if (!provider) {
-      return NextResponse.json(
-        { error: "Provider profile not found" },
-        { status: 404 }
-      );
-    }
-
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const caption = (formData.get("caption") as string) || "";
@@ -42,6 +32,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "No file provided" },
         { status: 400 }
+      );
+    }
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { error: "Image uploads are not configured. Please add Cloudinary credentials." },
+        { status: 500 }
       );
     }
 
@@ -69,25 +66,37 @@ export async function POST(req: NextRequest) {
         .end(buffer);
     });
 
-    // Get current max sort order
-    const maxSort = await prisma.portfolioImage.aggregate({
-      where: { providerId: provider.id },
-      _max: { sortOrder: true },
+    // If provider profile exists, create the DB record immediately
+    const provider = await prisma.providerProfile.findUnique({
+      where: { userId: session.user.id },
     });
 
-    // Create portfolio image record
-    const image = await prisma.portfolioImage.create({
-      data: {
-        providerId: provider.id,
-        imageUrl: result.secure_url,
-        caption: caption || null,
-        sortOrder: (maxSort._max.sortOrder || 0) + 1,
-      },
-    });
+    if (provider) {
+      const maxSort = await prisma.portfolioImage.aggregate({
+        where: { providerId: provider.id },
+        _max: { sortOrder: true },
+      });
 
-    return NextResponse.json(image, { status: 201 });
+      const image = await prisma.portfolioImage.create({
+        data: {
+          providerId: provider.id,
+          imageUrl: result.secure_url,
+          caption: caption || null,
+          sortOrder: (maxSort._max.sortOrder || 0) + 1,
+        },
+      });
+
+      return NextResponse.json(image, { status: 201 });
+    }
+
+    // No profile yet — return the Cloudinary URL so the frontend can
+    // include it when the profile is saved for the first time.
+    return NextResponse.json(
+      { imageUrl: result.secure_url, caption: caption || null, pending: true },
+      { status: 201 }
+    );
   } catch (error) {
-    if (process.env.NODE_ENV === "development") console.error(error);
+    console.error("Portfolio image upload error:", error);
     return NextResponse.json(
       { error: "Upload failed" },
       { status: 500 }
