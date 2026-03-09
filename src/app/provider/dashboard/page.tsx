@@ -126,7 +126,7 @@ export default function ProviderDashboardPage() {
           {completionItems.map((item) => (
             <div key={item.label} className="flex items-center gap-1">
               <span className={item.done ? "text-emerald-400" : "text-brand-muted"}>
-                {item.done ? "&#10003;" : "&#9675;"}
+                {item.done ? "\u2713" : "\u25CB"}
               </span>
               <span
                 className={

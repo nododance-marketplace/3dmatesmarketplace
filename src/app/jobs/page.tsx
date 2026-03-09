@@ -162,6 +162,7 @@ export default function JobsPage() {
 }
 
 function PostJobForm({ onPosted }: { onPosted: () => void }) {
+  const { data: session } = useSession();
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -169,11 +170,26 @@ function PostJobForm({ onPosted }: { onPosted: () => void }) {
     budgetMin: "",
     budgetMax: "",
     deadline: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    preferredContactMethod: "EMAIL",
   });
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Pre-fill contact from session
+  useEffect(() => {
+    if (session?.user) {
+      setForm((f) => ({
+        ...f,
+        contactName: f.contactName || session.user.name || "",
+        contactEmail: f.contactEmail || session.user.email || "",
+      }));
+    }
+  }, [session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,6 +207,10 @@ function PostJobForm({ onPosted }: { onPosted: () => void }) {
         budgetMax: form.budgetMax ? parseInt(form.budgetMax) : undefined,
         deadline: form.deadline || undefined,
         imageUrls,
+        contactName: form.contactName || undefined,
+        contactEmail: form.contactEmail || undefined,
+        contactPhone: form.contactPhone || undefined,
+        preferredContactMethod: form.preferredContactMethod || undefined,
       }),
     });
 
@@ -327,6 +347,65 @@ function PostJobForm({ onPosted }: { onPosted: () => void }) {
               />
             </label>
           )}
+        </div>
+
+        {/* Contact Info */}
+        <div className="rounded-lg border border-brand-border bg-brand-bg p-4 space-y-3">
+          <h3 className="text-sm font-medium text-brand-text">Your Contact Info</h3>
+          <p className="text-xs text-brand-muted">
+            How should providers reach you? Visible to logged-in providers.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs text-brand-muted">
+                Name *
+              </label>
+              <input
+                type="text"
+                value={form.contactName}
+                onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                required
+                className="w-full rounded border border-brand-border bg-brand-surface px-3 py-2 text-sm text-brand-text focus:border-cyan focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-brand-muted">
+                Email *
+              </label>
+              <input
+                type="email"
+                value={form.contactEmail}
+                onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
+                required
+                className="w-full rounded border border-brand-border bg-brand-surface px-3 py-2 text-sm text-brand-text focus:border-cyan focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-brand-muted">
+                Phone (optional)
+              </label>
+              <input
+                type="tel"
+                value={form.contactPhone}
+                onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
+                className="w-full rounded border border-brand-border bg-brand-surface px-3 py-2 text-sm text-brand-text focus:border-cyan focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-brand-muted">
+                Preferred Contact Method
+              </label>
+              <select
+                value={form.preferredContactMethod}
+                onChange={(e) => setForm({ ...form, preferredContactMethod: e.target.value })}
+                className="w-full rounded border border-brand-border bg-brand-surface px-3 py-2 text-sm text-brand-text focus:border-cyan focus:outline-none"
+              >
+                <option value="EMAIL">Email</option>
+                <option value="PHONE">Phone</option>
+                <option value="PLATFORM_RESPONSE">Platform Response</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {error && <p className="text-sm text-red-400">{error}</p>}

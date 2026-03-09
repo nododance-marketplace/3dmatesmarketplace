@@ -116,7 +116,64 @@ export default function JobDetailPage() {
         </div>
       )}
 
+      {/* Contact Info - visible to owner and providers */}
+      {(job.contactName || job.contactEmail || job.contactPhone) && (
+        <div className="mb-6 rounded-lg border border-brand-border bg-brand-surface p-4">
+          <h2 className="mb-2 text-sm font-semibold">Contact</h2>
+          <div className="space-y-1 text-sm">
+            {job.contactName && (
+              <p className="text-brand-text">{job.contactName}</p>
+            )}
+            {job.contactEmail && (
+              <p>
+                <a href={`mailto:${job.contactEmail}`} className="text-cyan hover:underline">
+                  {job.contactEmail}
+                </a>
+              </p>
+            )}
+            {job.contactPhone && (
+              <p>
+                <a href={`tel:${job.contactPhone}`} className="text-cyan hover:underline">
+                  {job.contactPhone}
+                </a>
+              </p>
+            )}
+            {job.preferredContactMethod && (
+              <p className="text-xs text-brand-muted">
+                Preferred: {job.preferredContactMethod === "EMAIL" ? "Email" : job.preferredContactMethod === "PHONE" ? "Phone" : "Platform Response"}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Owner actions */}
+      {job.isOwner && (
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Link
+            href={`/jobs/${id}/edit`}
+            className="rounded border border-cyan px-3 py-1.5 text-sm text-cyan transition hover:bg-cyan/10"
+          >
+            Edit Job
+          </Link>
+          {job.status === "OPEN" && (
+            <button
+              onClick={async () => {
+                if (!confirm("Close this job? It will no longer accept responses.")) return;
+                const res = await fetch(`/api/jobs/${id}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ status: "CLOSED" }),
+                });
+                if (res.ok) fetchJob();
+              }}
+              className="rounded border border-red-400/50 px-3 py-1.5 text-sm text-red-400 transition hover:bg-red-400/10"
+            >
+              Close Job
+            </button>
+          )}
+        </div>
+      )}
       {job.isOwner && job.status === "IN_PROGRESS" && (
         <div className="mb-6">
           <button

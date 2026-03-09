@@ -145,8 +145,12 @@ model JobRequest {
   budgetMax          Int?
   deadline           DateTime?
   city               String    @default("Charlotte")
-  status             String    @default("OPEN")
-  acceptedResponseId String?
+  status                 String    @default("OPEN")
+  acceptedResponseId     String?
+  contactName            String?
+  contactEmail           String?
+  contactPhone           String?
+  preferredContactMethod String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

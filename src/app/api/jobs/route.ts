@@ -14,6 +14,10 @@ const jobSchema = z.object({
   deadline: z.string().optional(),
   city: z.string().default("Charlotte"),
   imageUrls: z.array(z.string().url()).max(5).default([]),
+  contactName: z.string().max(100).optional(),
+  contactEmail: z.string().email().optional().or(z.literal("")),
+  contactPhone: z.string().max(30).optional(),
+  preferredContactMethod: z.enum(["EMAIL", "PHONE", "PLATFORM_RESPONSE"]).optional(),
 });
 
 // GET /api/jobs — public browse
@@ -107,6 +111,10 @@ export async function POST(req: NextRequest) {
         deadline: data.deadline ? new Date(data.deadline) : null,
         city: data.city,
         status: "OPEN",
+        contactName: data.contactName || null,
+        contactEmail: data.contactEmail || null,
+        contactPhone: data.contactPhone || null,
+        preferredContactMethod: data.preferredContactMethod || null,
       },
     });
 
