@@ -1,33 +1,63 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 import HeroMesh from "./HeroMesh";
+
+// Lazy-load the 3D model to avoid SSR issues with Three.js
+const HeroModel = dynamic(() => import("./HeroModel"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="relative">
+        <div className="h-32 w-32 rounded-full bg-cyan/5 animate-pulse" />
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(15, 182, 200, 0.15) 0%, transparent 70%)",
+          }}
+        />
+      </div>
+    </div>
+  ),
+});
 
 export default function HomeHero() {
   return (
     <section className="noise-overlay relative overflow-hidden py-20 sm:py-28 lg:py-36">
-      {/* ── Layered background treatment ────────────────────── */}
+      {/* ── Layered atmospheric background ────────────────────── */}
 
-      {/* Dark radial gradient base */}
+      {/* Primary radial gradient - deep teal glow */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(15, 182, 200, 0.06) 0%, transparent 70%)",
+            "radial-gradient(ellipse 90% 70% at 60% 40%, rgba(15, 182, 200, 0.08) 0%, transparent 60%)",
+        }}
+      />
+
+      {/* Secondary warm gradient bloom */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 30% 60%, rgba(13, 217, 239, 0.04) 0%, transparent 70%)",
         }}
       />
 
       {/* Teal glow bloom behind content */}
       <div
-        className="pointer-events-none absolute -top-20 left-1/4 h-[600px] w-[900px] -translate-x-1/2 animate-glow-pulse rounded-full"
+        className="pointer-events-none absolute -top-20 right-1/4 h-[700px] w-[1000px] animate-glow-pulse rounded-full"
         style={{
           background:
-            "radial-gradient(ellipse, rgba(15, 182, 200, 0.12) 0%, transparent 65%)",
+            "radial-gradient(ellipse, rgba(15, 182, 200, 0.14) 0%, transparent 60%)",
         }}
       />
 
-      {/* Secondary warm glow offset */}
+      {/* Deep ambient layer */}
       <div
-        className="pointer-events-none absolute -bottom-40 right-0 h-[400px] w-[600px] rounded-full opacity-[0.04]"
+        className="pointer-events-none absolute -bottom-40 left-0 h-[500px] w-[700px] rounded-full opacity-[0.05]"
         style={{
           background:
             "radial-gradient(ellipse, #0FB6C8 0%, transparent 70%)",
@@ -36,7 +66,7 @@ export default function HomeHero() {
 
       {/* Subtle grid overlay */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        className="pointer-events-none absolute inset-0 opacity-[0.025]"
         style={{
           backgroundImage:
             "linear-gradient(rgba(15, 182, 200, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 182, 200, 0.3) 1px, transparent 1px)",
@@ -48,7 +78,7 @@ export default function HomeHero() {
       <HeroMesh />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left: Copy */}
           <div className="max-w-xl animate-fade-in-up">
             {/* Eyebrow label */}
@@ -125,46 +155,38 @@ export default function HomeHero() {
             </p>
           </div>
 
-          {/* Right: Hero illustration */}
+          {/* Right: 3D Hero Model */}
           <div
             className="relative animate-fade-in-up"
             style={{ animationDelay: "200ms" }}
           >
-            {/* Multi-layer glow behind image */}
+            {/* Multi-layer glow behind model */}
             <div
-              className="pointer-events-none absolute inset-0 -m-12 rounded-full opacity-30 blur-3xl"
+              className="pointer-events-none absolute inset-0 -m-16 rounded-full opacity-40 blur-3xl"
               style={{
                 background:
-                  "radial-gradient(ellipse at 60% 40%, #0FB6C8 0%, transparent 70%)",
+                  "radial-gradient(ellipse at 55% 45%, #0FB6C8 0%, transparent 65%)",
               }}
             />
             <div
-              className="pointer-events-none absolute inset-0 -m-4 rounded-full opacity-10 blur-2xl"
+              className="pointer-events-none absolute inset-0 -m-8 rounded-full opacity-15 blur-2xl"
               style={{
                 background:
-                  "radial-gradient(ellipse at 40% 60%, #0DD9EF 0%, transparent 60%)",
+                  "radial-gradient(ellipse at 45% 55%, #0DD9EF 0%, transparent 55%)",
+              }}
+            />
+            {/* Soft teal ring glow */}
+            <div
+              className="pointer-events-none absolute inset-0 -m-4 rounded-full opacity-[0.08]"
+              style={{
+                background:
+                  "radial-gradient(circle, transparent 40%, rgba(15, 182, 200, 0.3) 60%, transparent 75%)",
               }}
             />
 
-            {/* Soft edge mask */}
-            <div
-              className="relative overflow-hidden rounded-3xl"
-              style={{
-                maskImage:
-                  "radial-gradient(ellipse 85% 85% at 55% 45%, black 50%, transparent 100%)",
-                WebkitMaskImage:
-                  "radial-gradient(ellipse 85% 85% at 55% 45%, black 50%, transparent 100%)",
-              }}
-            >
-              <Image
-                src="/header image/Header image.png"
-                alt="Isometric map of Charlotte's 3D printing network"
-                width={2450}
-                height={1363}
-                className="h-auto w-full"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
+            {/* 3D Model container */}
+            <div className="relative aspect-square w-full max-w-[560px] mx-auto lg:max-w-none">
+              <HeroModel />
             </div>
           </div>
         </div>

@@ -36,10 +36,15 @@ const config: Config = {
           "0%, 100%": { opacity: "0.06" },
           "50%": { opacity: "0.12" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
         "glow-pulse": "glow-pulse 4s ease-in-out infinite",
+        float: "float 6s ease-in-out infinite",
       },
     },
   },
