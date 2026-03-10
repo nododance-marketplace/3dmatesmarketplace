@@ -68,3 +68,99 @@ body {
   background: rgba(15, 182, 200, 0.3);
   color: #E5E7EB;
 }
+
+/* ── Glass card utility ──────────────────────────────────── */
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(20, 26, 31, 0.8) 0%,
+    rgba(20, 26, 31, 0.5) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(31, 41, 55, 0.6);
+  box-shadow:
+    0 0 0 1px rgba(15, 182, 200, 0.03) inset,
+    0 4px 24px rgba(0, 0, 0, 0.3),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.glass-card:hover {
+  border-color: rgba(55, 65, 81, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(15, 182, 200, 0.06) inset,
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Glow effects ────────────────────────────────────────── */
+.glow-cyan {
+  box-shadow:
+    0 0 20px rgba(15, 182, 200, 0.15),
+    0 0 60px rgba(15, 182, 200, 0.05);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 40px rgba(15, 182, 200, 0.3);
+}
+
+/* ── Section divider gradient ────────────────────────────── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(15, 182, 200, 0.15) 50%,
+    transparent 100%
+  );
+}
+
+/* ── Subtle noise texture overlay ────────────────────────── */
+.noise-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Premium button styles ───────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #0FB6C8 0%, #0CA4B5 100%);
+  box-shadow:
+    0 0 20px rgba(15, 182, 200, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  box-shadow:
+    0 0 30px rgba(15, 182, 200, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  border: 1px solid rgba(15, 182, 200, 0.3);
+  box-shadow: 0 0 12px rgba(15, 182, 200, 0.05);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(15, 182, 200, 0.6);
+  box-shadow: 0 0 20px rgba(15, 182, 200, 0.1);
+  background: rgba(15, 182, 200, 0.05);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}

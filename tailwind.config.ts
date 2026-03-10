@@ -27,6 +27,20 @@ const config: Config = {
       fontFamily: {
         sans: ["Satoshi", "system-ui", "sans-serif"],
       },
+      keyframes: {
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(24px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { opacity: "0.06" },
+          "50%": { opacity: "0.12" },
+        },
+      },
+      animation: {
+        "fade-in-up": "fade-in-up 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
+        "glow-pulse": "glow-pulse 4s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

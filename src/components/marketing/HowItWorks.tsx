@@ -1,8 +1,11 @@
+import ScrollReveal from "./ScrollReveal";
+
 const steps = [
   {
     step: "01",
     title: "Browse providers",
-    description: "Filter by material, process, or location. View portfolios, reviews, and capabilities on a map.",
+    description:
+      "Filter by material, process, or location. View portfolios, reviews, and capabilities on a map.",
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
         <rect x="2" y="6" width="12" height="9" rx="2" stroke="#0FB6C8" strokeWidth="1.5" />
@@ -17,7 +20,8 @@ const steps = [
   {
     step: "02",
     title: "Post a job",
-    description: "Describe your part, set materials, budget, and deadline. Providers in your area get notified.",
+    description:
+      "Describe your part, set materials, budget, and deadline. Providers in your area get notified.",
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
         <rect x="6" y="4" width="20" height="24" rx="3" stroke="#0FB6C8" strokeWidth="1.5" />
@@ -33,7 +37,8 @@ const steps = [
   {
     step: "03",
     title: "Get it made locally",
-    description: "Receive responses with price estimates and turnaround times. Choose a provider and get your parts.",
+    description:
+      "Receive responses with price estimates and turnaround times. Choose a provider and get your parts.",
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
         <path d="M4 16L12 24L28 8" stroke="#0FB6C8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -45,39 +50,46 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold sm:text-3xl">How it works</h2>
-          <p className="mt-2 text-sm text-brand-muted">Three steps from idea to finished part.</p>
-        </div>
+        <ScrollReveal>
+          <div className="text-center">
+            <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
+              How it works
+            </h2>
+            <p className="mt-3 text-sm text-brand-muted sm:text-base">
+              Three steps from idea to finished part.
+            </p>
+          </div>
+        </ScrollReveal>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-3">
-          {steps.map((s) => (
-            <div
-              key={s.step}
-              className="group relative rounded-2xl border border-brand-border bg-brand-surface p-6 transition hover:border-brand-border-light hover:bg-brand-surface-hover"
-            >
-              {/* Step number */}
-              <span className="text-xs font-semibold tracking-wider text-cyan/40">
-                {s.step}
-              </span>
+        <div className="mt-16 grid gap-6 sm:grid-cols-3">
+          {steps.map((s, i) => (
+            <ScrollReveal key={s.step} delay={i * 120}>
+              <div className="glass-card group relative h-full rounded-3xl p-7 transition-all duration-300">
+                {/* Step number */}
+                <span className="text-xs font-bold tracking-widest text-cyan/30">
+                  {s.step}
+                </span>
 
-              {/* Icon */}
-              <div className="mt-4">{s.icon}</div>
+                {/* Icon */}
+                <div className="mt-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan/5 ring-1 ring-cyan/10">
+                  {s.icon}
+                </div>
 
-              <h3 className="mt-4 text-base font-semibold text-brand-text">
-                {s.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-brand-muted">
-                {s.description}
-              </p>
+                <h3 className="mt-5 text-base font-bold text-brand-text">
+                  {s.title}
+                </h3>
+                <p className="mt-2.5 text-sm leading-relaxed text-brand-muted">
+                  {s.description}
+                </p>
 
-              {/* Connector line (between cards) */}
-              {s.step !== "03" && (
-                <div className="absolute -right-3 top-1/2 hidden h-px w-6 bg-brand-border sm:block" />
-              )}
-            </div>
+                {/* Connector line (between cards) */}
+                {s.step !== "03" && (
+                  <div className="absolute -right-3 top-1/2 hidden h-px w-6 bg-gradient-to-r from-brand-border to-transparent sm:block" />
+                )}
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>

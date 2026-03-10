@@ -1,3 +1,5 @@
+import ScrollReveal from "./ScrollReveal";
+
 const cards = [
   {
     title: "Moderation & approvals",
@@ -44,31 +46,40 @@ const cards = [
 
 export default function TrustSafety() {
   return (
-    <section className="py-20 sm:py-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold sm:text-3xl">Trust &amp; safety</h2>
-          <p className="mt-2 text-sm text-brand-muted">
-            A marketplace only works when both sides feel safe.
-          </p>
-        </div>
+    <section className="relative py-24 sm:py-32">
+      {/* Subtle ambient glow */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.04]"
+        style={{ background: "radial-gradient(ellipse, #0FB6C8 0%, transparent 70%)" }}
+      />
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {cards.map((card) => (
-            <div
-              key={card.title}
-              className="rounded-2xl border border-brand-border bg-brand-surface p-5 transition hover:border-brand-border-light"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan/10">
-                {card.icon}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <ScrollReveal>
+          <div className="text-center">
+            <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
+              Trust &amp; safety
+            </h2>
+            <p className="mt-3 text-sm text-brand-muted sm:text-base">
+              A marketplace only works when both sides feel safe.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {cards.map((card, i) => (
+            <ScrollReveal key={card.title} delay={i * 100}>
+              <div className="glass-card h-full rounded-3xl p-6 transition-all duration-300">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan/5 ring-1 ring-cyan/10">
+                  {card.icon}
+                </div>
+                <h3 className="mt-5 text-sm font-bold text-brand-text">
+                  {card.title}
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-brand-muted">
+                  {card.description}
+                </p>
               </div>
-              <h3 className="mt-4 text-sm font-semibold text-brand-text">
-                {card.title}
-              </h3>
-              <p className="mt-1.5 text-xs leading-relaxed text-brand-muted">
-                {card.description}
-              </p>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>
