@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { parseJsonArray } from "@/lib/helpers";
+import ProviderImageManager from "@/components/admin/ProviderImageManager";
 
 type Tab = "providers" | "jobs" | "reviews" | "seed";
 
@@ -20,6 +21,7 @@ export default function AdminPanelPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [imageManagerId, setImageManagerId] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -617,65 +619,125 @@ export default function AdminPanelPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-start justify-between">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-semibold text-brand-text">
-                                  {p.displayName}
-                                </h4>
-                                <span
-                                  className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                          <div>
+                            <div className="flex items-start justify-between">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  {/* Profile photo thumbnail */}
+                                  {p.photoUrl ? (
+                                    <img
+                                      src={p.photoUrl}
+                                      alt=""
+                                      className="h-8 w-8 flex-shrink-0 rounded-full border border-brand-border object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-dashed border-brand-border bg-brand-bg text-[10px] text-brand-muted">
+                                      ?
+                                    </div>
+                                  )}
+                                  <h4 className="font-semibold text-brand-text">
+                                    {p.displayName}
+                                  </h4>
+                                  <span
+                                    className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                                      p.status === "APPROVED"
+                                        ? "bg-emerald-900/40 text-emerald-300"
+                                        : p.status === "PENDING"
+                                          ? "bg-amber-900/40 text-amber-300"
+                                          : "bg-red-900/40 text-red-300"
+                                    }`}
+                                  >
+                                    {p.status}
+                                  </span>
+                                  <span className="rounded bg-cyan/10 px-1.5 py-0.5 text-[10px] font-medium text-cyan">
+                                    SEED
+                                  </span>
+                                </div>
+                                {p.headline && (
+                                  <p className="mt-1 text-sm text-brand-muted line-clamp-1">
+                                    {p.headline}
+                                  </p>
+                                )}
+                                <p className="mt-1 text-xs text-brand-muted">
+                                  {p.user?.email} &middot; {p.city}
+                                  {p.portfolio?.length > 0 && (
+                                    <> &middot; {p.portfolio.length} portfolio images</>
+                                  )}
+                                </p>
+                              </div>
+                              <div className="ml-3 flex flex-shrink-0 gap-2">
+                                <button
+                                  onClick={() =>
+                                    handleSeedToggleStatus("provider", p.id, p.status)
+                                  }
+                                  disabled={actionLoading === p.id}
+                                  className={`rounded px-3 py-1 text-xs font-medium transition disabled:opacity-50 ${
                                     p.status === "APPROVED"
-                                      ? "bg-emerald-900/40 text-emerald-300"
-                                      : p.status === "PENDING"
-                                        ? "bg-amber-900/40 text-amber-300"
-                                        : "bg-red-900/40 text-red-300"
+                                      ? "bg-amber-600 text-white hover:bg-amber-700"
+                                      : "bg-emerald-600 text-white hover:bg-emerald-700"
                                   }`}
                                 >
-                                  {p.status}
-                                </span>
-                                <span className="rounded bg-cyan/10 px-1.5 py-0.5 text-[10px] font-medium text-cyan">
-                                  SEED
-                                </span>
+                                  {p.status === "APPROVED" ? "Unpublish" : "Publish"}
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setImageManagerId(
+                                      imageManagerId === p.id ? null : p.id
+                                    )
+                                  }
+                                  className={`rounded border px-3 py-1 text-xs font-medium transition ${
+                                    imageManagerId === p.id
+                                      ? "border-cyan/30 bg-cyan/10 text-cyan"
+                                      : "border-brand-border text-brand-muted hover:text-brand-text"
+                                  }`}
+                                >
+                                  Images
+                                </button>
+                                <button
+                                  onClick={() => handleSeedEdit("provider", p)}
+                                  disabled={actionLoading === p.id}
+                                  className="rounded border border-brand-border px-3 py-1 text-xs font-medium text-brand-muted transition hover:text-brand-text disabled:opacity-50"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleSeedDelete("provider", p.id)}
+                                  disabled={actionLoading === p.id}
+                                  className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+                                >
+                                  Delete
+                                </button>
                               </div>
-                              {p.headline && (
-                                <p className="mt-1 text-sm text-brand-muted line-clamp-1">
-                                  {p.headline}
-                                </p>
-                              )}
-                              <p className="mt-1 text-xs text-brand-muted">
-                                {p.user?.email} &middot; {p.city}
-                              </p>
                             </div>
-                            <div className="ml-3 flex flex-shrink-0 gap-2">
-                              <button
-                                onClick={() =>
-                                  handleSeedToggleStatus("provider", p.id, p.status)
-                                }
-                                disabled={actionLoading === p.id}
-                                className={`rounded px-3 py-1 text-xs font-medium transition disabled:opacity-50 ${
-                                  p.status === "APPROVED"
-                                    ? "bg-amber-600 text-white hover:bg-amber-700"
-                                    : "bg-emerald-600 text-white hover:bg-emerald-700"
-                                }`}
-                              >
-                                {p.status === "APPROVED" ? "Unpublish" : "Publish"}
-                              </button>
-                              <button
-                                onClick={() => handleSeedEdit("provider", p)}
-                                disabled={actionLoading === p.id}
-                                className="rounded border border-brand-border px-3 py-1 text-xs font-medium text-brand-muted transition hover:text-brand-text disabled:opacity-50"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleSeedDelete("provider", p.id)}
-                                disabled={actionLoading === p.id}
-                                className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
-                              >
-                                Delete
-                              </button>
-                            </div>
+
+                            {/* Portfolio thumbnail strip */}
+                            {p.portfolio?.length > 0 && imageManagerId !== p.id && (
+                              <div className="mt-2 flex gap-1 overflow-x-auto">
+                                {p.portfolio.slice(0, 6).map((img: any) => (
+                                  <img
+                                    key={img.id}
+                                    src={img.imageUrl}
+                                    alt=""
+                                    className="h-10 w-14 flex-shrink-0 rounded border border-brand-border object-cover"
+                                  />
+                                ))}
+                                {p.portfolio.length > 6 && (
+                                  <div className="flex h-10 w-14 flex-shrink-0 items-center justify-center rounded border border-brand-border bg-brand-bg text-[10px] text-brand-muted">
+                                    +{p.portfolio.length - 6}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Image manager panel */}
+                            {imageManagerId === p.id && (
+                              <ProviderImageManager
+                                providerId={p.id}
+                                photoUrl={p.photoUrl}
+                                portfolio={p.portfolio || []}
+                                onUpdate={fetchSeed}
+                              />
+                            )}
                           </div>
                         )}
                       </div>

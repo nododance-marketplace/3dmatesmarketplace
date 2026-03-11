@@ -16,7 +16,10 @@ export async function GET() {
     const [providers, jobs] = await Promise.all([
       prisma.providerProfile.findMany({
         where: { isSeed: true },
-        include: { user: { select: { email: true, name: true } } },
+        include: {
+          user: { select: { email: true, name: true } },
+          portfolio: { orderBy: { sortOrder: "asc" } },
+        },
         orderBy: { createdAt: "desc" },
       }),
       prisma.jobRequest.findMany({
