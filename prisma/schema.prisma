@@ -109,6 +109,7 @@ model ProviderProfile {
   photoUrl     String?
 
   status    String   @default("PENDING")
+  isSeed    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -146,6 +147,7 @@ model JobRequest {
   deadline           DateTime?
   city               String    @default("Charlotte")
   status                 String    @default("OPEN")
+  isSeed                 Boolean   @default(false)
   acceptedResponseId     String?
   contactName            String?
   contactEmail           String?

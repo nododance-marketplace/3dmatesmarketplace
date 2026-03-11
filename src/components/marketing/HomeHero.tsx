@@ -25,7 +25,7 @@ const HeroModel = dynamic(() => import("./HeroModel"), {
 
 export default function HomeHero() {
   return (
-    <section className="noise-overlay relative overflow-hidden py-20 sm:py-28 lg:py-36">
+    <section className="noise-overlay relative overflow-hidden py-12 sm:py-20 lg:py-36">
       {/* ── Layered atmospheric background ────────────────────── */}
 
       {/* Primary radial gradient - deep teal glow */}
@@ -78,7 +78,7 @@ export default function HomeHero() {
       <HeroMesh />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-6 sm:gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left: Copy */}
           <div className="max-w-xl animate-fade-in-up">
             {/* Eyebrow label */}
@@ -157,19 +157,19 @@ export default function HomeHero() {
 
           {/* Right: 3D Hero Model */}
           <div
-            className="relative animate-fade-in-up"
+            className="relative animate-fade-in-up order-first lg:order-last"
             style={{ animationDelay: "200ms" }}
           >
             {/* Multi-layer glow behind model */}
             <div
-              className="pointer-events-none absolute inset-0 -m-16 rounded-full opacity-40 blur-3xl"
+              className="pointer-events-none absolute inset-0 -m-8 sm:-m-16 rounded-full opacity-40 blur-3xl"
               style={{
                 background:
                   "radial-gradient(ellipse at 55% 45%, #0FB6C8 0%, transparent 65%)",
               }}
             />
             <div
-              className="pointer-events-none absolute inset-0 -m-8 rounded-full opacity-15 blur-2xl"
+              className="pointer-events-none absolute inset-0 -m-4 sm:-m-8 rounded-full opacity-15 blur-2xl"
               style={{
                 background:
                   "radial-gradient(ellipse at 45% 55%, #0DD9EF 0%, transparent 55%)",
@@ -177,15 +177,15 @@ export default function HomeHero() {
             />
             {/* Soft teal ring glow */}
             <div
-              className="pointer-events-none absolute inset-0 -m-4 rounded-full opacity-[0.08]"
+              className="pointer-events-none absolute inset-0 -m-2 sm:-m-4 rounded-full opacity-[0.08]"
               style={{
                 background:
                   "radial-gradient(circle, transparent 40%, rgba(15, 182, 200, 0.3) 60%, transparent 75%)",
               }}
             />
 
-            {/* 3D Model container */}
-            <div className="relative aspect-square w-full max-w-[560px] mx-auto lg:max-w-none">
+            {/* 3D Model container — 4:3 on mobile, square on desktop */}
+            <div className="relative aspect-[4/3] sm:aspect-square w-full max-w-[400px] sm:max-w-[560px] mx-auto lg:max-w-none">
               <HeroModel />
             </div>
           </div>

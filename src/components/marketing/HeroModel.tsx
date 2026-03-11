@@ -9,6 +9,7 @@ function Model() {
   const { scene } = useGLTF("/models/3dmates-hero.glb");
   const groupRef = useRef<THREE.Group>(null);
   const scrollRef = useRef(0);
+  const maxScrollRef = useRef(1);
   const idleRef = useRef(0);
 
   // Respect prefers-reduced-motion
@@ -19,13 +20,22 @@ function Model() {
     );
   }, []);
 
-  // Track scroll position
+  // Track scroll position and page height
   useEffect(() => {
-    const handleScroll = () => {
+    const update = () => {
       scrollRef.current = window.scrollY;
+      maxScrollRef.current = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight
+      );
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, []);
 
   // Center and scale the model
@@ -66,13 +76,16 @@ function Model() {
     const floatY = Math.sin(idleRef.current * 0.8) * 0.06;
     const floatX = Math.sin(idleRef.current * 0.5) * 0.02;
 
-    // Scroll-based rotation (smooth, elegant)
-    const scrollRotation = scrollRef.current * 0.0003;
+    // Scroll-based rotation: full 360 degrees over page scroll
+    // scrollProgress goes from 0 to 1 as user scrolls the full page
+    const scrollProgress = scrollRef.current / maxScrollRef.current;
+    // Map to a full rotation (2 * PI = 360 degrees)
+    const scrollRotation = scrollProgress * Math.PI * 2;
 
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
       -0.3 + scrollRotation,
-      0.05
+      0.06
     );
     groupRef.current.position.y = THREE.MathUtils.lerp(
       groupRef.current.position.y,
@@ -81,10 +94,10 @@ function Model() {
     );
     groupRef.current.position.x = floatX;
 
-    // Very subtle tilt on scroll
+    // Gentle tilt on scroll for depth feel
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
-      scrollRef.current * 0.00005,
+      Math.sin(scrollProgress * Math.PI) * 0.1,
       0.05
     );
   });
@@ -143,8 +156,8 @@ function CameraRig() {
   const { camera } = useThree();
 
   useEffect(() => {
-    camera.position.set(0, 0.5, 5.5);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 0.3, 4.8);
+    camera.lookAt(0, -0.1, 0);
   }, [camera]);
 
   return null;

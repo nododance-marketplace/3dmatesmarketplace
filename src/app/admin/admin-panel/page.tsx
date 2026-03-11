@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { parseJsonArray } from "@/lib/helpers";
 
-type Tab = "providers" | "jobs" | "reviews";
+type Tab = "providers" | "jobs" | "reviews" | "seed";
 
 export default function AdminPanelPage() {
   const { data: session, status } = useSession();
@@ -14,8 +14,12 @@ export default function AdminPanelPage() {
   const [providers, setProviders] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [seedProviders, setSeedProviders] = useState<any[]>([]);
+  const [seedJobs, setSeedJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (status === "loading") return;
@@ -23,7 +27,7 @@ export default function AdminPanelPage() {
       router.push("/");
       return;
     }
-    Promise.all([fetchProviders(), fetchJobs(), fetchReviews()]).then(() =>
+    Promise.all([fetchProviders(), fetchJobs(), fetchReviews(), fetchSeed()]).then(() =>
       setLoading(false)
     );
   }, [session, status]);
@@ -44,6 +48,13 @@ export default function AdminPanelPage() {
     const res = await fetch("/api/admin/reviews");
     const data = await res.json();
     setReviews(Array.isArray(data) ? data : []);
+  };
+
+  const fetchSeed = async () => {
+    const res = await fetch("/api/admin/seed");
+    const data = await res.json();
+    setSeedProviders(Array.isArray(data.providers) ? data.providers : []);
+    setSeedJobs(Array.isArray(data.jobs) ? data.jobs : []);
   };
 
   const handleProviderAction = async (providerId: string, newStatus: string) => {
@@ -102,6 +113,143 @@ export default function AdminPanelPage() {
     setActionLoading(null);
   };
 
+  // ── Seed content handlers ────────────────────────────────────
+
+  const handleSeedEdit = (type: "provider" | "job", item: any) => {
+    setEditingId(item.id);
+    if (type === "provider") {
+      setEditForm({
+        type: "provider",
+        displayName: item.displayName,
+        headline: item.headline || "",
+        bio: item.bio || "",
+        status: item.status,
+      });
+    } else {
+      setEditForm({
+        type: "job",
+        title: item.title,
+        description: item.description,
+        category: item.category || "",
+        budgetMin: item.budgetMin ?? "",
+        budgetMax: item.budgetMax ?? "",
+        status: item.status,
+      });
+    }
+  };
+
+  const handleSeedSave = async () => {
+    if (!editingId) return;
+    setActionLoading(editingId);
+
+    const { type, ...fields } = editForm;
+    const data: Record<string, any> = {};
+
+    if (type === "provider") {
+      if (fields.displayName) data.displayName = fields.displayName;
+      if (fields.headline !== undefined) data.headline = fields.headline;
+      if (fields.bio !== undefined) data.bio = fields.bio;
+      if (fields.status) data.status = fields.status;
+    } else {
+      if (fields.title) data.title = fields.title;
+      if (fields.description !== undefined) data.description = fields.description;
+      if (fields.category !== undefined) data.category = fields.category || null;
+      data.budgetMin = fields.budgetMin === "" ? null : Number(fields.budgetMin);
+      data.budgetMax = fields.budgetMax === "" ? null : Number(fields.budgetMax);
+      if (fields.status) data.status = fields.status;
+    }
+
+    const res = await fetch("/api/admin/seed", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, id: editingId, data }),
+    });
+
+    if (res.ok) {
+      await fetchSeed();
+      setEditingId(null);
+      setEditForm({});
+    }
+    setActionLoading(null);
+  };
+
+  const handleSeedDelete = async (type: "provider" | "job", id: string) => {
+    const label = type === "provider" ? "seed provider (and its user account)" : "seed job";
+    if (!confirm(`Delete this ${label}?`)) return;
+    setActionLoading(id);
+
+    const res = await fetch("/api/admin/seed", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, id }),
+    });
+
+    if (res.ok) {
+      if (type === "provider") {
+        setSeedProviders((prev) => prev.filter((p) => p.id !== id));
+      } else {
+        setSeedJobs((prev) => prev.filter((j) => j.id !== id));
+      }
+    }
+    setActionLoading(null);
+  };
+
+  const handlePurgeAll = async () => {
+    if (
+      !confirm(
+        "This will delete ALL seed providers, jobs, and demo users. This cannot be undone. Continue?"
+      )
+    )
+      return;
+
+    setActionLoading("purge");
+    const res = await fetch("/api/admin/seed", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "purge" }),
+    });
+
+    if (res.ok) {
+      setSeedProviders([]);
+      setSeedJobs([]);
+    }
+    setActionLoading(null);
+  };
+
+  const handleSeedToggleStatus = async (
+    type: "provider" | "job",
+    id: string,
+    currentStatus: string
+  ) => {
+    setActionLoading(id);
+
+    let newStatus: string;
+    if (type === "provider") {
+      newStatus = currentStatus === "APPROVED" ? "PENDING" : "APPROVED";
+    } else {
+      newStatus = currentStatus === "OPEN" ? "CLOSED" : "OPEN";
+    }
+
+    const res = await fetch("/api/admin/seed", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, id, data: { status: newStatus } }),
+    });
+
+    if (res.ok) {
+      if (type === "provider") {
+        setSeedProviders((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+        );
+      } else {
+        setSeedJobs((prev) =>
+          prev.map((j) => (j.id === id ? { ...j, status: newStatus } : j))
+        );
+      }
+    }
+    setActionLoading(null);
+  };
+
   if (status === "loading" || loading)
     return (
       <div className="py-20 text-center text-brand-muted">Loading...</div>
@@ -113,7 +261,7 @@ export default function AdminPanelPage() {
 
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-lg border border-brand-border bg-brand-bg p-1">
-        {(["providers", "jobs", "reviews"] as const).map((tab) => (
+        {(["providers", "jobs", "reviews", "seed"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -127,7 +275,9 @@ export default function AdminPanelPage() {
               ? `Providers (${providers.length})`
               : tab === "jobs"
                 ? `Jobs (${jobs.length})`
-                : `Reviews (${reviews.length})`}
+                : tab === "reviews"
+                  ? `Reviews (${reviews.length})`
+                  : `Seed (${seedProviders.length + seedJobs.length})`}
           </button>
         ))}
       </div>
@@ -356,6 +506,345 @@ export default function AdminPanelPage() {
                 </div>
               ))}
             </div>
+          )}
+        </section>
+      )}
+
+      {/* Seed Content Tab */}
+      {activeTab === "seed" && (
+        <section>
+          {/* Header with purge button */}
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm text-brand-muted">
+              Manage demo/seed content flagged with{" "}
+              <code className="rounded bg-brand-bg px-1.5 py-0.5 text-xs text-cyan">
+                isSeed
+              </code>
+            </p>
+            {(seedProviders.length > 0 || seedJobs.length > 0) && (
+              <button
+                onClick={handlePurgeAll}
+                disabled={actionLoading === "purge"}
+                className="rounded bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {actionLoading === "purge" ? "Purging..." : "Purge All Seed Data"}
+              </button>
+            )}
+          </div>
+
+          {seedProviders.length === 0 && seedJobs.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-brand-border p-8 text-center">
+              <p className="text-sm text-brand-muted">
+                No seed content found. Run{" "}
+                <code className="rounded bg-brand-bg px-1.5 py-0.5 text-xs text-cyan">
+                  npm run seed
+                </code>{" "}
+                to populate demo data.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Seed Providers */}
+              {seedProviders.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="mb-3 text-sm font-semibold text-brand-text">
+                    Seed Providers ({seedProviders.length})
+                  </h3>
+                  <div className="space-y-3">
+                    {seedProviders.map((p) => (
+                      <div
+                        key={p.id}
+                        className="rounded-lg border border-cyan/10 bg-brand-surface p-4"
+                      >
+                        {editingId === p.id && editForm.type === "provider" ? (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="mb-1 block text-xs text-brand-muted">
+                                Display Name
+                              </label>
+                              <input
+                                type="text"
+                                value={editForm.displayName}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, displayName: e.target.value })
+                                }
+                                className="w-full rounded border border-brand-border bg-brand-bg px-3 py-1.5 text-sm text-brand-text"
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1 block text-xs text-brand-muted">
+                                Headline
+                              </label>
+                              <input
+                                type="text"
+                                value={editForm.headline}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, headline: e.target.value })
+                                }
+                                className="w-full rounded border border-brand-border bg-brand-bg px-3 py-1.5 text-sm text-brand-text"
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1 block text-xs text-brand-muted">
+                                Bio
+                              </label>
+                              <textarea
+                                value={editForm.bio}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, bio: e.target.value })
+                                }
+                                rows={3}
+                                className="w-full rounded border border-brand-border bg-brand-bg px-3 py-1.5 text-sm text-brand-text"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={handleSeedSave}
+                                disabled={actionLoading === p.id}
+                                className="rounded bg-cyan px-3 py-1 text-xs font-medium text-black transition hover:bg-cyan-hover disabled:opacity-50"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingId(null);
+                                  setEditForm({});
+                                }}
+                                className="rounded border border-brand-border px-3 py-1 text-xs font-medium text-brand-muted transition hover:text-brand-text"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-start justify-between">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-semibold text-brand-text">
+                                  {p.displayName}
+                                </h4>
+                                <span
+                                  className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                                    p.status === "APPROVED"
+                                      ? "bg-emerald-900/40 text-emerald-300"
+                                      : p.status === "PENDING"
+                                        ? "bg-amber-900/40 text-amber-300"
+                                        : "bg-red-900/40 text-red-300"
+                                  }`}
+                                >
+                                  {p.status}
+                                </span>
+                                <span className="rounded bg-cyan/10 px-1.5 py-0.5 text-[10px] font-medium text-cyan">
+                                  SEED
+                                </span>
+                              </div>
+                              {p.headline && (
+                                <p className="mt-1 text-sm text-brand-muted line-clamp-1">
+                                  {p.headline}
+                                </p>
+                              )}
+                              <p className="mt-1 text-xs text-brand-muted">
+                                {p.user?.email} &middot; {p.city}
+                              </p>
+                            </div>
+                            <div className="ml-3 flex flex-shrink-0 gap-2">
+                              <button
+                                onClick={() =>
+                                  handleSeedToggleStatus("provider", p.id, p.status)
+                                }
+                                disabled={actionLoading === p.id}
+                                className={`rounded px-3 py-1 text-xs font-medium transition disabled:opacity-50 ${
+                                  p.status === "APPROVED"
+                                    ? "bg-amber-600 text-white hover:bg-amber-700"
+                                    : "bg-emerald-600 text-white hover:bg-emerald-700"
+                                }`}
+                              >
+                                {p.status === "APPROVED" ? "Unpublish" : "Publish"}
+                              </button>
+                              <button
+                                onClick={() => handleSeedEdit("provider", p)}
+                                disabled={actionLoading === p.id}
+                                className="rounded border border-brand-border px-3 py-1 text-xs font-medium text-brand-muted transition hover:text-brand-text disabled:opacity-50"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleSeedDelete("provider", p.id)}
+                                disabled={actionLoading === p.id}
+                                className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Seed Jobs */}
+              {seedJobs.length > 0 && (
+                <div>
+                  <h3 className="mb-3 text-sm font-semibold text-brand-text">
+                    Seed Jobs ({seedJobs.length})
+                  </h3>
+                  <div className="space-y-3">
+                    {seedJobs.map((j) => (
+                      <div
+                        key={j.id}
+                        className="rounded-lg border border-cyan/10 bg-brand-surface p-4"
+                      >
+                        {editingId === j.id && editForm.type === "job" ? (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="mb-1 block text-xs text-brand-muted">
+                                Title
+                              </label>
+                              <input
+                                type="text"
+                                value={editForm.title}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, title: e.target.value })
+                                }
+                                className="w-full rounded border border-brand-border bg-brand-bg px-3 py-1.5 text-sm text-brand-text"
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1 block text-xs text-brand-muted">
+                                Description
+                              </label>
+                              <textarea
+                                value={editForm.description}
+                                onChange={(e) =>
+                                  setEditForm({ ...editForm, description: e.target.value })
+                                }
+                                rows={3}
+                                className="w-full rounded border border-brand-border bg-brand-bg px-3 py-1.5 text-sm text-brand-text"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="mb-1 block text-xs text-brand-muted">
+                                  Budget Min ($)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={editForm.budgetMin}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, budgetMin: e.target.value })
+                                  }
+                                  className="w-full rounded border border-brand-border bg-brand-bg px-3 py-1.5 text-sm text-brand-text"
+                                />
+                              </div>
+                              <div>
+                                <label className="mb-1 block text-xs text-brand-muted">
+                                  Budget Max ($)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={editForm.budgetMax}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, budgetMax: e.target.value })
+                                  }
+                                  className="w-full rounded border border-brand-border bg-brand-bg px-3 py-1.5 text-sm text-brand-text"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={handleSeedSave}
+                                disabled={actionLoading === j.id}
+                                className="rounded bg-cyan px-3 py-1 text-xs font-medium text-black transition hover:bg-cyan-hover disabled:opacity-50"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingId(null);
+                                  setEditForm({});
+                                }}
+                                className="rounded border border-brand-border px-3 py-1 text-xs font-medium text-brand-muted transition hover:text-brand-text"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-start justify-between">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h4 className="truncate font-semibold text-brand-text">
+                                  {j.title}
+                                </h4>
+                                <span
+                                  className={`flex-shrink-0 rounded px-2 py-0.5 text-[10px] font-medium ${
+                                    j.status === "OPEN"
+                                      ? "bg-emerald-900/40 text-emerald-300"
+                                      : "bg-gray-800/40 text-gray-300"
+                                  }`}
+                                >
+                                  {j.status}
+                                </span>
+                                <span className="rounded bg-cyan/10 px-1.5 py-0.5 text-[10px] font-medium text-cyan">
+                                  SEED
+                                </span>
+                              </div>
+                              <p className="mt-1 text-sm text-brand-muted line-clamp-1">
+                                {j.description}
+                              </p>
+                              <p className="mt-1 text-xs text-brand-muted">
+                                Budget: {j.budgetMin && j.budgetMax
+                                  ? `$${j.budgetMin} - $${j.budgetMax}`
+                                  : j.budgetMin
+                                    ? `$${j.budgetMin}+`
+                                    : j.budgetMax
+                                      ? `Up to $${j.budgetMax}`
+                                      : "Flexible"}
+                                {" "}&middot;{" "}
+                                {new Date(j.createdAt).toLocaleDateString()}
+                                {" "}&middot;{" "}
+                                {j._count?.responses || 0} responses
+                              </p>
+                            </div>
+                            <div className="ml-3 flex flex-shrink-0 gap-2">
+                              <button
+                                onClick={() =>
+                                  handleSeedToggleStatus("job", j.id, j.status)
+                                }
+                                disabled={actionLoading === j.id}
+                                className={`rounded px-3 py-1 text-xs font-medium transition disabled:opacity-50 ${
+                                  j.status === "OPEN"
+                                    ? "bg-amber-600 text-white hover:bg-amber-700"
+                                    : "bg-emerald-600 text-white hover:bg-emerald-700"
+                                }`}
+                              >
+                                {j.status === "OPEN" ? "Close" : "Reopen"}
+                              </button>
+                              <button
+                                onClick={() => handleSeedEdit("job", j)}
+                                disabled={actionLoading === j.id}
+                                className="rounded border border-brand-border px-3 py-1 text-xs font-medium text-brand-muted transition hover:text-brand-text disabled:opacity-50"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleSeedDelete("job", j.id)}
+                                disabled={actionLoading === j.id}
+                                className="rounded bg-red-600 px-3 py-1 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </section>
       )}
