@@ -184,8 +184,8 @@ export default function HomeHero() {
               }}
             />
 
-            {/* 3D Model container — 4:3 on mobile, square on desktop */}
-            <div className="relative aspect-[4/3] sm:aspect-square w-full max-w-[400px] sm:max-w-[560px] mx-auto lg:max-w-none">
+            {/* 3D Model container — square on all sizes for no cutoff */}
+            <div className="relative aspect-square w-full max-w-[420px] sm:max-w-[560px] mx-auto lg:max-w-none">
               <HeroModel />
             </div>
           </div>

@@ -45,7 +45,7 @@ function Model() {
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 3.2 / maxDim;
+      const scale = 2.9 / maxDim;
 
       scene.scale.setScalar(scale);
       scene.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
@@ -79,8 +79,8 @@ function Model() {
     // Scroll-based rotation: full 360 degrees over page scroll
     // scrollProgress goes from 0 to 1 as user scrolls the full page
     const scrollProgress = scrollRef.current / maxScrollRef.current;
-    // Map to a full rotation (2 * PI = 360 degrees)
-    const scrollRotation = scrollProgress * Math.PI * 2;
+    // Map to two full rotations (4 * PI = 720 degrees)
+    const scrollRotation = scrollProgress * Math.PI * 4;
 
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
@@ -156,7 +156,7 @@ function CameraRig() {
   const { camera } = useThree();
 
   useEffect(() => {
-    camera.position.set(0, 0.3, 4.8);
+    camera.position.set(0, 0.3, 5.4);
     camera.lookAt(0, -0.1, 0);
   }, [camera]);
 

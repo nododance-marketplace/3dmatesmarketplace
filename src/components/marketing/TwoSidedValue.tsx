@@ -1,3 +1,4 @@
+import Image from "next/image";
 import ScrollReveal from "./ScrollReveal";
 
 const customerPoints = [
@@ -28,6 +29,25 @@ export default function TwoSidedValue() {
             <p className="mt-3 text-sm text-brand-muted sm:text-base">
               Whether you need parts or make them, 3DMates connects the dots.
             </p>
+          </div>
+        </ScrollReveal>
+
+        {/* Charlotte network visual */}
+        <ScrollReveal delay={100}>
+          <div className="relative mt-12 overflow-hidden rounded-3xl">
+            {/* Gradient overlays for seamless blend with dark background */}
+            <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-brand-bg via-transparent to-brand-bg/80" />
+            <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-r from-brand-bg/60 via-transparent to-brand-bg/60" />
+            {/* Teal tint overlay */}
+            <div className="pointer-events-none absolute inset-0 z-10 mix-blend-soft-light bg-cyan/[0.08]" />
+            <Image
+              src="/images/charlotte-network.png"
+              alt="3D printing provider network across Charlotte, NC"
+              width={1920}
+              height={1080}
+              className="w-full object-cover opacity-80"
+              sizes="(max-width: 1280px) 100vw, 1280px"
+            />
           </div>
         </ScrollReveal>
 
