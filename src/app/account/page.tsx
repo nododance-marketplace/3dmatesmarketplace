@@ -9,9 +9,19 @@ import { JOB_CATEGORY_LABELS } from "@/lib/constants";
 export default function AccountPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobsWithResponses, setJobsWithResponses] = useState<any[]>([]);
   const [saved, setSaved] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedJobs, setExpandedJobs] = useState<Set<string>>(new Set());
+
+  const toggleJob = (id: string) => {
+    setExpandedJobs((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (status === "loading") return;
@@ -25,14 +35,10 @@ export default function AccountPage() {
     }
 
     Promise.all([
-      fetch("/api/jobs?status=ALL").then((r) => r.json()),
+      fetch("/api/jobs/my-jobs-with-responses").then((r) => r.json()),
       fetch("/api/saved/providers/me").then((r) => r.json()),
     ]).then(([jobsData, savedData]) => {
-      // Filter jobs to only show user's jobs
-      const myJobs = Array.isArray(jobsData)
-        ? jobsData.filter((j: any) => j.customerName === session.user.name)
-        : [];
-      setJobs(myJobs);
+      setJobsWithResponses(Array.isArray(jobsData) ? jobsData : []);
       setSaved(Array.isArray(savedData) ? savedData : []);
       setLoading(false);
     });
@@ -63,7 +69,7 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* My Jobs */}
+      {/* My Jobs & Responses */}
       <section className="mb-8">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">My Jobs</h2>
@@ -71,36 +77,176 @@ export default function AccountPage() {
             Post New Job
           </Link>
         </div>
-        {jobs.length === 0 ? (
+        {jobsWithResponses.length === 0 ? (
           <p className="text-sm text-brand-muted">No jobs posted yet.</p>
         ) : (
-          <div className="space-y-2">
-            {jobs.map((j: any) => (
-              <Link
+          <div className="space-y-3">
+            {jobsWithResponses.map((j: any) => (
+              <div
                 key={j.id}
-                href={`/jobs/${j.id}`}
-                className="block rounded-lg border border-brand-border bg-brand-surface p-3 transition hover:bg-brand-surface-hover"
+                className="rounded-lg border border-brand-border bg-brand-surface overflow-hidden"
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-brand-text">{j.title}</span>
-                  <span
-                    className={`rounded px-2 py-0.5 text-[10px] font-medium ${
-                      j.status === "OPEN"
-                        ? "bg-emerald-900/40 text-emerald-300"
-                        : j.status === "IN_PROGRESS"
-                          ? "bg-blue-900/40 text-blue-300"
-                          : j.status === "COMPLETED"
-                            ? "bg-cyan-900/40 text-cyan"
-                            : "bg-gray-800/40 text-gray-300"
-                    }`}
-                  >
-                    {j.status}
-                  </span>
+                {/* Job header row */}
+                <div className="flex items-center justify-between p-3">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/jobs/${j.id}`}
+                      className="font-medium text-brand-text hover:text-cyan transition"
+                    >
+                      {j.title}
+                    </Link>
+                    <div className="mt-0.5 flex items-center gap-2 text-xs text-brand-muted">
+                      <span>{j.city}</span>
+                      <span>·</span>
+                      <span>
+                        Posted {new Date(j.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                        j.status === "OPEN"
+                          ? "bg-emerald-900/40 text-emerald-300"
+                          : j.status === "IN_PROGRESS"
+                            ? "bg-blue-900/40 text-blue-300"
+                            : j.status === "COMPLETED"
+                              ? "bg-cyan-900/40 text-cyan"
+                              : "bg-gray-800/40 text-gray-300"
+                      }`}
+                    >
+                      {j.status.replace("_", " ")}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-xs text-brand-muted">
-                  {j.responseCount} responses
-                </span>
-              </Link>
+
+                {/* Responses toggle */}
+                <button
+                  onClick={() => toggleJob(j.id)}
+                  className="w-full border-t border-brand-border px-3 py-2 flex items-center justify-between text-xs hover:bg-brand-surface-hover transition"
+                >
+                  <span className="text-brand-muted">
+                    <span className="font-medium text-brand-text">
+                      {j.responses.length}
+                    </span>{" "}
+                    provider response{j.responses.length !== 1 ? "s" : ""}
+                  </span>
+                  <span className="text-brand-muted">
+                    {expandedJobs.has(j.id) ? "▲" : "▼"}
+                  </span>
+                </button>
+
+                {/* Expanded responses */}
+                {expandedJobs.has(j.id) && j.responses.length > 0 && (
+                  <div className="border-t border-brand-border divide-y divide-brand-border">
+                    {j.responses.map((r: any) => (
+                      <div key={r.id} className="p-3 bg-brand-bg/30">
+                        <div className="flex items-start gap-3">
+                          {/* Provider avatar */}
+                          {r.provider?.photoUrl ? (
+                            <img
+                              src={r.provider.photoUrl}
+                              alt=""
+                              className="h-9 w-9 rounded-full object-cover shrink-0"
+                            />
+                          ) : (
+                            <div className="h-9 w-9 rounded-full bg-brand-surface flex items-center justify-center shrink-0">
+                              <span className="text-xs text-brand-muted">
+                                {r.provider?.displayName?.[0] || "?"}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <div>
+                                <span className="text-sm font-medium text-brand-text">
+                                  {r.provider?.displayName || "Provider"}
+                                </span>
+                                {r.provider?.headline && (
+                                  <p className="text-xs text-brand-muted truncate">
+                                    {r.provider.headline}
+                                  </p>
+                                )}
+                              </div>
+                              <span
+                                className={`rounded px-2 py-0.5 text-[10px] font-medium shrink-0 ${
+                                  r.status === "ACCEPTED"
+                                    ? "bg-emerald-900/40 text-emerald-300"
+                                    : r.status === "DECLINED"
+                                      ? "bg-red-900/40 text-red-300"
+                                      : "bg-brand-surface text-brand-muted"
+                                }`}
+                              >
+                                {r.status}
+                              </span>
+                            </div>
+
+                            {/* Quote details */}
+                            {(r.estimatedPrice || r.turnaroundDays) && (
+                              <div className="mt-1 flex items-center gap-3 text-xs">
+                                {r.estimatedPrice && (
+                                  <span className="text-cyan font-medium">
+                                    ${r.estimatedPrice}
+                                  </span>
+                                )}
+                                {r.turnaroundDays && (
+                                  <span className="text-brand-muted">
+                                    {r.turnaroundDays} day
+                                    {r.turnaroundDays !== 1 ? "s" : ""}{" "}
+                                    turnaround
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Message preview */}
+                            {r.message && (
+                              <p className="mt-1.5 text-xs text-brand-muted line-clamp-2">
+                                {r.message}
+                              </p>
+                            )}
+
+                            {/* Action buttons */}
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              {r.provider?.slug && (
+                                <Link
+                                  href={`/providers/${r.provider.slug}`}
+                                  className="rounded border border-cyan/30 px-2.5 py-1 text-[11px] font-medium text-cyan transition hover:bg-cyan/10"
+                                >
+                                  View Profile
+                                </Link>
+                              )}
+                              {r.provider?.contactEmail && (
+                                <a
+                                  href={`mailto:${r.provider.contactEmail}`}
+                                  className="rounded border border-brand-border px-2.5 py-1 text-[11px] font-medium text-brand-muted transition hover:text-brand-text hover:border-brand-text/30"
+                                >
+                                  Email Provider
+                                </a>
+                              )}
+                              {r.provider?.phone && (
+                                <a
+                                  href={`tel:${r.provider.phone}`}
+                                  className="rounded border border-brand-border px-2.5 py-1 text-[11px] font-medium text-brand-muted transition hover:text-brand-text hover:border-brand-text/30"
+                                >
+                                  Call Provider
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {expandedJobs.has(j.id) && j.responses.length === 0 && (
+                  <div className="border-t border-brand-border p-4 text-center text-xs text-brand-muted">
+                    No provider responses yet.
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}

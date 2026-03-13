@@ -40,10 +40,35 @@ export default function Footer() {
               </Link>
             </nav>
 
-            {/* Copyright */}
-            <p className="text-center text-xs text-brand-muted/40 sm:text-right">
-              &copy; {new Date().getFullYear()} 3DMates. All rights reserved.
-            </p>
+            {/* Social + Copyright */}
+            <div className="flex flex-col items-center gap-3 sm:items-end">
+              <a
+                href="https://www.instagram.com/printwith3dmates/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-muted/60 transition hover:text-cyan"
+                aria-label="Follow 3DMates on Instagram"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </a>
+              <p className="text-xs text-brand-muted/40">
+                &copy; {new Date().getFullYear()} 3DMates. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
       </div>

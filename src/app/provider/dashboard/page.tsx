@@ -10,6 +10,7 @@ export default function ProviderDashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
+  const [responses, setResponses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,12 +24,14 @@ export default function ProviderDashboardPage() {
       return;
     }
 
-    fetch("/api/provider-profile/me")
-      .then((r) => r.json())
-      .then((data) => {
-        setProfile(data);
-        setLoading(false);
-      });
+    Promise.all([
+      fetch("/api/provider-profile/me").then((r) => r.json()),
+      fetch("/api/provider-profile/my-responses").then((r) => r.json()),
+    ]).then(([profileData, responsesData]) => {
+      setProfile(profileData);
+      setResponses(Array.isArray(responsesData) ? responsesData : []);
+      setLoading(false);
+    });
   }, [session, status]);
 
   if (status === "loading" || loading)
@@ -172,6 +175,88 @@ export default function ProviderDashboardPage() {
           </p>
         )}
       </div>
+
+      {/* Jobs You Contacted */}
+      <section>
+        <h2 className="mb-3 text-lg font-semibold">Jobs You Contacted</h2>
+        {responses.length === 0 ? (
+          <div className="rounded-lg border border-brand-border bg-brand-surface p-6 text-center">
+            <p className="text-sm text-brand-muted">
+              You haven&apos;t responded to any jobs yet.
+            </p>
+            <Link
+              href="/jobs"
+              className="mt-2 inline-block text-sm text-cyan hover:text-cyan-hover"
+            >
+              Browse Open Jobs
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {responses.map((r: any) => (
+              <Link
+                key={r.id}
+                href={`/jobs/${r.job.id}`}
+                className="block rounded-lg border border-brand-border bg-brand-surface p-4 transition hover:bg-brand-surface-hover"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-brand-text truncate">
+                      {r.job.title}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-brand-muted">
+                      <span>{r.job.city}</span>
+                      {(r.job.budgetMin || r.job.budgetMax) && (
+                        <span>
+                          ${r.job.budgetMin ?? "?"} – ${r.job.budgetMax ?? "?"}
+                        </span>
+                      )}
+                      <span>
+                        Posted{" "}
+                        {new Date(r.job.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {r.estimatedPrice && (
+                      <p className="mt-1 text-xs text-brand-muted">
+                        Your quote: ${r.estimatedPrice}
+                        {r.turnaroundDays
+                          ? ` · ${r.turnaroundDays} day${r.turnaroundDays !== 1 ? "s" : ""}`
+                          : ""}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span
+                      className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                        r.job.status === "OPEN"
+                          ? "bg-emerald-900/40 text-emerald-300"
+                          : r.job.status === "IN_PROGRESS"
+                            ? "bg-blue-900/40 text-blue-300"
+                            : r.job.status === "COMPLETED"
+                              ? "bg-cyan-900/40 text-cyan"
+                              : "bg-gray-800/40 text-gray-300"
+                      }`}
+                    >
+                      {r.job.status.replace("_", " ")}
+                    </span>
+                    <span
+                      className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                        r.status === "ACCEPTED"
+                          ? "bg-emerald-900/40 text-emerald-300"
+                          : r.status === "DECLINED"
+                            ? "bg-red-900/40 text-red-300"
+                            : "bg-brand-bg text-brand-muted"
+                      }`}
+                    >
+                      {r.status}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
