@@ -154,6 +154,13 @@ model JobRequest {
   contactPhone           String?
   preferredContactMethod String?
 
+  // Image-to-3D fields
+  needsModeling     Boolean  @default(false)
+  intendedUse       String?
+  dimensions        String?
+  quantity          Int?     @default(1)
+  generatedModelUrl String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

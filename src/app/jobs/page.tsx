@@ -14,6 +14,7 @@ interface Job {
   budgetMax?: number | null;
   city: string;
   status: string;
+  needsModeling?: boolean;
   responseCount: number;
   customerName: string;
   createdAt: string;
@@ -117,15 +118,22 @@ export default function JobsPage() {
             >
               <div className="flex items-start justify-between">
                 <h3 className="font-semibold text-brand-text">{j.title}</h3>
-                <span
-                  className={`rounded px-2 py-0.5 text-[10px] font-medium ${
-                    j.status === "OPEN"
-                      ? "bg-emerald-900/40 text-emerald-300"
-                      : "bg-gray-800/40 text-gray-300"
-                  }`}
-                >
-                  {j.status}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {j.needsModeling && (
+                    <span className="rounded bg-violet-900/40 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                      Needs Modeling
+                    </span>
+                  )}
+                  <span
+                    className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                      j.status === "OPEN"
+                        ? "bg-emerald-900/40 text-emerald-300"
+                        : "bg-gray-800/40 text-gray-300"
+                    }`}
+                  >
+                    {j.status}
+                  </span>
+                </div>
               </div>
               <p className="mt-1 text-xs text-brand-muted line-clamp-2">
                 {j.description}

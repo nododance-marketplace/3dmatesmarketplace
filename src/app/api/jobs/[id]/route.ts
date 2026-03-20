@@ -16,6 +16,10 @@ const jobUpdateSchema = z.object({
   contactPhone: z.string().max(30).nullable().optional(),
   preferredContactMethod: z.enum(["EMAIL", "PHONE", "PLATFORM_RESPONSE"]).nullable().optional(),
   status: z.enum(["OPEN", "CLOSED"]).optional(),
+  needsModeling: z.boolean().optional(),
+  intendedUse: z.string().max(100).nullable().optional(),
+  dimensions: z.string().max(200).nullable().optional(),
+  quantity: z.number().int().min(1).nullable().optional(),
 });
 
 // GET /api/jobs/[id] — public job detail

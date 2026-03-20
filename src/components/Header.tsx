@@ -29,23 +29,29 @@ export default function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-7 md:flex" style={{ fontFamily: "'Inter', sans-serif" }}>
           <Link
             href="/providers"
-            className="text-sm text-brand-muted transition hover:text-brand-text"
+            className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
           >
             Providers
           </Link>
           <Link
             href="/jobs"
-            className="text-sm text-brand-muted transition hover:text-brand-text"
+            className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
           >
             Jobs
+          </Link>
+          <Link
+            href="/jobs/from-image"
+            className="text-[13px] font-medium tracking-wide text-cyan transition hover:text-cyan-hover"
+          >
+            Image to 3D
           </Link>
           {session && (
             <Link
               href={isProvider ? "/provider/dashboard" : "/account"}
-              className="text-sm text-brand-muted transition hover:text-brand-text"
+              className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
             >
               Dashboard
             </Link>
@@ -53,7 +59,7 @@ export default function Header() {
           {session && !isProvider && (
             <Link
               href="/onboarding"
-              className="text-sm text-cyan transition hover:text-cyan-hover"
+              className="text-[13px] font-medium tracking-wide text-cyan transition hover:text-cyan-hover"
             >
               Become a Provider
             </Link>
@@ -61,7 +67,7 @@ export default function Header() {
           {isAdminUser && (
             <Link
               href="/admin/admin-panel"
-              className="text-sm text-brand-muted transition hover:text-brand-text"
+              className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
             >
               Admin
             </Link>
@@ -114,27 +120,34 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-brand-border bg-brand-bg px-4 py-4 md:hidden">
+        <div className="border-t border-brand-border bg-brand-bg px-4 py-4 md:hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
           <nav className="flex flex-col gap-3">
             <Link
               href="/providers"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-brand-muted hover:text-brand-text"
+              className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
             >
               Providers
             </Link>
             <Link
               href="/jobs"
               onClick={() => setMobileOpen(false)}
-              className="text-sm text-brand-muted hover:text-brand-text"
+              className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
             >
               Jobs
+            </Link>
+            <Link
+              href="/jobs/from-image"
+              onClick={() => setMobileOpen(false)}
+              className="text-[13px] font-medium tracking-wide text-cyan hover:text-cyan-hover"
+            >
+              Image to 3D
             </Link>
             {session && (
               <Link
                 href={isProvider ? "/provider/dashboard" : "/account"}
                 onClick={() => setMobileOpen(false)}
-                className="text-sm text-brand-muted hover:text-brand-text"
+                className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
               >
                 Dashboard
               </Link>
@@ -143,7 +156,7 @@ export default function Header() {
               <Link
                 href="/onboarding"
                 onClick={() => setMobileOpen(false)}
-                className="text-sm text-cyan hover:text-cyan-hover"
+                className="text-[13px] font-medium tracking-wide text-cyan hover:text-cyan-hover"
               >
                 Become a Provider
               </Link>
@@ -152,7 +165,7 @@ export default function Header() {
               <Link
                 href="/admin/admin-panel"
                 onClick={() => setMobileOpen(false)}
-                className="text-sm text-brand-muted hover:text-brand-text"
+                className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
               >
                 Admin
               </Link>

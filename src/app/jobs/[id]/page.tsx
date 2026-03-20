@@ -46,19 +46,26 @@ export default function JobDetailPage() {
       <div className="mb-6">
         <div className="flex items-start justify-between">
           <h1 className="text-2xl font-bold">{job.title}</h1>
-          <span
-            className={`rounded px-2 py-0.5 text-xs font-medium ${
-              job.status === "OPEN"
-                ? "bg-emerald-900/40 text-emerald-300"
-                : job.status === "IN_PROGRESS"
-                  ? "bg-blue-900/40 text-blue-300"
-                  : job.status === "COMPLETED"
-                    ? "bg-cyan-900/40 text-cyan"
-                    : "bg-gray-800/40 text-gray-300"
-            }`}
-          >
-            {job.status}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {job.needsModeling && (
+              <span className="rounded bg-violet-900/40 px-2 py-0.5 text-xs font-medium text-violet-300">
+                Needs Modeling
+              </span>
+            )}
+            <span
+              className={`rounded px-2 py-0.5 text-xs font-medium ${
+                job.status === "OPEN"
+                  ? "bg-emerald-900/40 text-emerald-300"
+                  : job.status === "IN_PROGRESS"
+                    ? "bg-blue-900/40 text-blue-300"
+                    : job.status === "COMPLETED"
+                      ? "bg-cyan-900/40 text-cyan"
+                      : "bg-gray-800/40 text-gray-300"
+              }`}
+            >
+              {job.status}
+            </span>
+          </div>
         </div>
         <div className="mt-2 flex items-center gap-2 text-sm text-brand-muted">
           <span>Posted by {job.customer?.name || "Anonymous"}</span>
@@ -98,6 +105,21 @@ export default function JobDetailPage() {
                 {m}
               </span>
             ))}
+          </div>
+        )}
+        {/* Image-to-3D details */}
+        {(job.needsModeling || job.intendedUse || job.dimensions || (job.quantity && job.quantity > 1)) && (
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-brand-muted">
+            {job.intendedUse && <span>Use: {job.intendedUse.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase())}</span>}
+            {job.dimensions && <span>Size: {job.dimensions}</span>}
+            {job.quantity && job.quantity > 1 && <span>Qty: {job.quantity}</span>}
+          </div>
+        )}
+        {job.needsModeling && (
+          <div className="mt-3 rounded-lg border border-violet-700/30 bg-violet-900/20 p-3">
+            <p className="text-xs font-medium text-violet-300">
+              This customer needs help creating a 3D model from reference images before printing.
+            </p>
           </div>
         )}
       </div>

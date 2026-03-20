@@ -18,6 +18,11 @@ const jobSchema = z.object({
   contactEmail: z.string().email().optional().or(z.literal("")),
   contactPhone: z.string().max(30).optional(),
   preferredContactMethod: z.enum(["EMAIL", "PHONE", "PLATFORM_RESPONSE"]).optional(),
+  // Image-to-3D fields
+  needsModeling: z.boolean().default(false),
+  intendedUse: z.string().max(100).optional(),
+  dimensions: z.string().max(200).optional(),
+  quantity: z.number().int().min(1).default(1),
 });
 
 // GET /api/jobs — public browse
@@ -67,6 +72,7 @@ export async function GET(req: NextRequest) {
       deadline: j.deadline,
       city: j.city,
       status: j.status,
+      needsModeling: j.needsModeling,
       responseCount: j._count.responses,
       customerName: j.customer.name || "Anonymous",
       customerImage: j.customer.image,
@@ -115,6 +121,10 @@ export async function POST(req: NextRequest) {
         contactEmail: data.contactEmail || null,
         contactPhone: data.contactPhone || null,
         preferredContactMethod: data.preferredContactMethod || null,
+        needsModeling: data.needsModeling,
+        intendedUse: data.intendedUse || null,
+        dimensions: data.dimensions || null,
+        quantity: data.quantity,
       },
     });
 

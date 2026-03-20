@@ -3,6 +3,7 @@ import { parseJsonArray } from "@/lib/helpers";
 import HomeHero from "@/components/marketing/HomeHero";
 import SocialProof from "@/components/marketing/SocialProof";
 import HowItWorks from "@/components/marketing/HowItWorks";
+import ImageTo3DCTA from "@/components/marketing/ImageTo3DCTA";
 import TwoSidedValue from "@/components/marketing/TwoSidedValue";
 import TrustSafety from "@/components/marketing/TrustSafety";
 import FeaturedPreviews from "@/components/marketing/FeaturedPreviews";
@@ -80,6 +81,7 @@ export default async function HomePage() {
       <HomeHero />
       <SocialProof />
       <HowItWorks />
+      <ImageTo3DCTA />
       <TwoSidedValue />
       <TrustSafety />
       <FeaturedPreviews providers={providers} jobs={jobs} />
