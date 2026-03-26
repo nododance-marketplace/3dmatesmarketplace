@@ -48,6 +48,12 @@ export default function Header() {
           >
             Image to 3D
           </Link>
+          <Link
+            href="/providers-growth"
+            className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
+          >
+            For Providers
+          </Link>
           {session && (
             <Link
               href={isProvider ? "/provider/dashboard" : "/account"}
@@ -142,6 +148,13 @@ export default function Header() {
               className="text-[13px] font-medium tracking-wide text-cyan hover:text-cyan-hover"
             >
               Image to 3D
+            </Link>
+            <Link
+              href="/providers-growth"
+              onClick={() => setMobileOpen(false)}
+              className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
+            >
+              For Providers
             </Link>
             {session && (
               <Link
