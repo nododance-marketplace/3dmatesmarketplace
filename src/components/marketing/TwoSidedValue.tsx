@@ -41,10 +41,11 @@ export default function TwoSidedValue() {
             <div className="pointer-events-none absolute inset-0 z-10 mix-blend-soft-light bg-cyan/[0.08]" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/images/charlotte-network.gif"
+              src="/images/charlotte-network.png"
               alt="3D printing provider network across Charlotte, NC"
               className="w-full object-cover opacity-80"
               loading="lazy"
+              decoding="async"
             />
           </div>
         </ScrollReveal>

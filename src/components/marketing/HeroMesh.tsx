@@ -11,7 +11,6 @@ interface Node {
   opacity: number;
 }
 
-const NODE_COUNT = 60;
 const CONNECTION_DIST = 140;
 const SPEED = 0.15;
 
@@ -19,6 +18,7 @@ export default function HeroMesh() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const nodesRef = useRef<Node[]>([]);
+  const visibleRef = useRef(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -32,8 +32,12 @@ export default function HeroMesh() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Fewer nodes on smaller screens to keep mobile smooth
+    const isMobile = window.innerWidth < 768;
+    const nodeCount = isMobile ? 25 : 45;
+
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const rect = canvas!.getBoundingClientRect();
       canvas!.width = rect.width * dpr;
       canvas!.height = rect.height * dpr;
@@ -42,7 +46,7 @@ export default function HeroMesh() {
 
     function initNodes() {
       const rect = canvas!.getBoundingClientRect();
-      nodesRef.current = Array.from({ length: NODE_COUNT }, () => ({
+      nodesRef.current = Array.from({ length: nodeCount }, () => ({
         x: Math.random() * rect.width,
         y: Math.random() * rect.height,
         vx: (Math.random() - 0.5) * SPEED,
@@ -65,10 +69,22 @@ export default function HeroMesh() {
     };
     window.addEventListener("resize", handleResize);
 
+    // Pause the loop when the hero is offscreen
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0 }
+    );
+    observer.observe(canvas);
+
     if (prefersReduced) {
       // Draw a single static frame
       drawFrame();
-      return () => window.removeEventListener("resize", handleResize);
+      return () => {
+        window.removeEventListener("resize", handleResize);
+        observer.disconnect();
+      };
     }
 
     function drawFrame() {
@@ -117,7 +133,7 @@ export default function HeroMesh() {
     }
 
     function animate() {
-      drawFrame();
+      if (visibleRef.current) drawFrame();
       animRef.current = requestAnimationFrame(animate);
     }
 
@@ -127,6 +143,7 @@ export default function HeroMesh() {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", handleResize);
       clearTimeout(resizeTimeout);
+      observer.disconnect();
     };
   }, []);
 

@@ -182,10 +182,23 @@ function FallbackPlaceholder() {
 
 export default function HeroModel() {
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(true);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [mounted]);
 
   if (!mounted) {
     return (
@@ -196,7 +209,7 @@ export default function HeroModel() {
   }
 
   return (
-    <div className="h-full w-full">
+    <div ref={containerRef} className="h-full w-full">
       <Canvas
         gl={{
           antialias: true,
@@ -207,6 +220,7 @@ export default function HeroModel() {
         }}
         dpr={[1, 1.5]}
         camera={{ fov: 40, near: 0.1, far: 100 }}
+        frameloop={inView ? "always" : "never"}
         style={{ background: "transparent" }}
       >
         <CameraRig />
