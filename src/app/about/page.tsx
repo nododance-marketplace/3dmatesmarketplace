@@ -265,18 +265,18 @@ export default function AboutPage() {
                     {/* Avatar */}
                     <div className="flex-shrink-0">
                       <div
-                        className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl ${cls.bg} ring-1 ${cls.ring}`}
+                        className={`flex h-36 w-36 items-center justify-center overflow-hidden rounded-2xl sm:h-40 sm:w-40 ${cls.bg} ring-1 ${cls.ring}`}
                       >
                         {m.image ? (
                           <Image
                             src={m.image}
                             alt={m.name}
-                            width={80}
-                            height={80}
+                            width={256}
+                            height={256}
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <span className={`text-xl font-black ${cls.text}`}>
+                          <span className={`text-3xl font-black ${cls.text}`}>
                             {m.initials}
                           </span>
                         )}
