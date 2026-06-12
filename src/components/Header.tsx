@@ -54,6 +54,12 @@ export default function Header() {
           >
             For Providers
           </Link>
+          <Link
+            href="/about"
+            className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
+          >
+            About Us
+          </Link>
           {session && (
             <Link
               href={isProvider ? "/provider/dashboard" : "/account"}
@@ -155,6 +161,13 @@ export default function Header() {
               className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
             >
               For Providers
+            </Link>
+            <Link
+              href="/about"
+              onClick={() => setMobileOpen(false)}
+              className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
+            >
+              About Us
             </Link>
             {session && (
               <Link
