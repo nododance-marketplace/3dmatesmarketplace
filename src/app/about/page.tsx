@@ -66,14 +66,14 @@ const team: Member[] = [
     role: "AR & Computer Vision Engineer",
     initials: "WS",
     image: "/team/waqar.png",
-    badge: "Top-Ranked UK University",
+    badge: "Ulster University, UK",
     link: {
       href: "https://www.linkedin.com/in/waqarsaeed533/",
       label: "LinkedIn",
     },
-    bio: "Waqar was educated at a top-ranked UK university — among the best in the world — and works as a Unity AR developer specializing in computer vision and AI. He builds the immersive, vision-driven interfaces that turn complex 3D and engineering data into something teams can actually see, understand, and use.",
+    bio: "Waqar was educated at Ulster University in the UK and works as a Unity AR developer specializing in computer vision and AI. He builds the immersive, vision-driven interfaces that turn complex 3D and engineering data into something teams can actually see, understand, and use.",
     highlights: [
-      "Top UK university",
+      "Ulster University, UK",
       "Unity AR development",
       "Computer vision & AI",
     ],
