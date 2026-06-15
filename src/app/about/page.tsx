@@ -21,7 +21,7 @@ type Member = {
   link?: { href: string; label: string };
   bio: string;
   highlights: string[];
-  accent: "cyan" | "violet" | "amber" | "emerald";
+  accent: "cyan" | "violet" | "amber" | "emerald" | "rose";
 };
 
 const team: Member[] = [
@@ -97,6 +97,24 @@ const team: Member[] = [
     ],
     accent: "emerald",
   },
+  {
+    name: "Ezara McLaurin",
+    role: "Marketing & Content Lead",
+    initials: "EM",
+    image: "/team/ezara.png",
+    badge: "UNC Charlotte · Communication & Media",
+    link: {
+      href: "https://www.linkedin.com/in/ezara-mclaurin-200b57a2/",
+      label: "LinkedIn",
+    },
+    bio: "Ezara is an editor, storyteller, and content creator who tells the 3DMates story to the world. A UNC Charlotte graduate in Communication and Media Studies, he has produced podcasts, documentaries, commercials, and music videos, and runs his own monetized YouTube channel. He turns complex AI and 3D work into clear, compelling content that helps engineering firms understand exactly what we do — and why it matters.",
+    highlights: [
+      "UNC Charlotte, Communication & Media Studies",
+      "Video, podcasts & documentary production",
+      "Independent content creator & editor",
+    ],
+    accent: "rose",
+  },
 ];
 
 const accentMap: Record<
@@ -126,6 +144,12 @@ const accentMap: Record<
     bg: "bg-emerald-900/20",
     text: "text-emerald-300",
     badge: "border-emerald-700/30 bg-emerald-900/20 text-emerald-300",
+  },
+  rose: {
+    ring: "ring-rose-700/30",
+    bg: "bg-rose-900/20",
+    text: "text-rose-300",
+    badge: "border-rose-700/30 bg-rose-900/20 text-rose-300",
   },
 };
 
