@@ -413,6 +413,101 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* ═══ HOW WE HELP ═══ */}
+      <section className="relative py-24 sm:py-32">
+        <div className="section-divider absolute inset-x-0 top-0" />
+
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <ScrollReveal>
+            <div className="text-center">
+              <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
+                How we{" "}
+                <span className="bg-gradient-to-r from-cyan to-[#0DD9EF] bg-clip-text text-transparent">
+                  help
+                </span>
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-sm text-brand-muted sm:text-base">
+                We partner with engineers and engineering firms to put AI to
+                work — practically, and end to end.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="mt-14 grid gap-6 lg:grid-cols-3">
+            {[
+              {
+                tag: "Implement",
+                title: "Implement AI",
+                desc: "Integrate AI and automation into your workflows — quoting, file review, intake, internal tools — so your team spends less time on busywork and more on engineering.",
+                accent: "cyan",
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0FB6C8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" />
+                    <path d="M8 21h8M12 17v4" />
+                    <path d="M7 8l3 3-3 3M12 14h5" />
+                  </svg>
+                ),
+              },
+              {
+                tag: "Leads",
+                title: "Get leads with AI",
+                desc: "Turn your expertise into a pipeline. We build AI-driven lead generation, outreach, and intake systems that bring qualified work to you instead of chasing it.",
+                accent: "violet",
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                ),
+              },
+              {
+                tag: "Market",
+                title: "Market with AI",
+                desc: "From content and websites to brand and campaigns, we use AI to help your firm look as advanced as the work you do — and reach the clients who need it.",
+                accent: "amber",
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 11l18-5v12L3 14v-3z" />
+                    <path d="M11.6 16.8a3 3 0 11-5.8-1.6" />
+                  </svg>
+                ),
+              },
+            ].map((s, i) => {
+              const cls = accentMap[s.accent as keyof typeof accentMap];
+              return (
+                <ScrollReveal key={s.title} delay={i * 120}>
+                  <div className="glass-card flex h-full flex-col rounded-3xl p-8">
+                    <span
+                      className={`inline-block self-start rounded-full border px-3 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${cls.badge}`}
+                    >
+                      {s.tag}
+                    </span>
+                    <div
+                      className={`mt-5 flex h-12 w-12 items-center justify-center rounded-xl ${cls.bg} ring-1 ${cls.ring}`}
+                    >
+                      {s.icon}
+                    </div>
+                    <h3 className="mt-5 text-lg font-bold text-brand-text">
+                      {s.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-brand-muted">
+                      {s.desc}
+                    </p>
+                  </div>
+                </ScrollReveal>
+              );
+            })}
+          </div>
+
+          <ScrollReveal delay={120}>
+            <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-brand-muted">
+              ...and honestly, almost anything else. If you can describe it, we
+              can build it — custom tools, integrations, and AI deployments
+              tailored to how your firm actually works.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ═══ WHAT WE BRING ═══ */}
       <section className="relative py-24 sm:py-32">
         <div className="section-divider absolute inset-x-0 top-0" />
@@ -492,10 +587,10 @@ export default function AboutPage() {
                 Book a Call
               </a>
               <Link
-                href="/providers-growth"
+                href="/providers"
                 className="btn-secondary inline-flex items-center justify-center rounded-2xl px-9 py-3.5 text-sm font-bold text-cyan"
               >
-                For Providers
+                Browse the Marketplace
               </Link>
             </div>
           </ScrollReveal>

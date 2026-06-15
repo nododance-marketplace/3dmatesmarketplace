@@ -43,18 +43,6 @@ export default function Header() {
             Jobs
           </Link>
           <Link
-            href="/jobs/from-image"
-            className="text-[13px] font-medium tracking-wide text-cyan transition hover:text-cyan-hover"
-          >
-            Image to 3D
-          </Link>
-          <Link
-            href="/providers-growth"
-            className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
-          >
-            For Providers
-          </Link>
-          <Link
             href="/about"
             className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
           >
@@ -147,20 +135,6 @@ export default function Header() {
               className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
             >
               Jobs
-            </Link>
-            <Link
-              href="/jobs/from-image"
-              onClick={() => setMobileOpen(false)}
-              className="text-[13px] font-medium tracking-wide text-cyan hover:text-cyan-hover"
-            >
-              Image to 3D
-            </Link>
-            <Link
-              href="/providers-growth"
-              onClick={() => setMobileOpen(false)}
-              className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
-            >
-              For Providers
             </Link>
             <Link
               href="/about"
