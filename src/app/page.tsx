@@ -6,6 +6,7 @@ import HowItWorks from "@/components/marketing/HowItWorks";
 import ImageTo3DCTA from "@/components/marketing/ImageTo3DCTA";
 import TwoSidedValue from "@/components/marketing/TwoSidedValue";
 import TrustSafety from "@/components/marketing/TrustSafety";
+import PartnerVizus from "@/components/marketing/PartnerVizus";
 import FeaturedPreviews from "@/components/marketing/FeaturedPreviews";
 import FinalCTA from "@/components/marketing/FinalCTA";
 import Footer from "@/components/marketing/Footer";
@@ -84,6 +85,7 @@ export default async function HomePage() {
       <ImageTo3DCTA />
       <TwoSidedValue />
       <TrustSafety />
+      <PartnerVizus />
       <FeaturedPreviews providers={providers} jobs={jobs} />
       <FinalCTA />
       <Footer />
