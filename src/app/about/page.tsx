@@ -505,6 +505,51 @@ export default function AboutPage() {
               tailored to how your firm actually works.
             </p>
           </ScrollReveal>
+
+          {/* Vizus partnership note */}
+          <ScrollReveal delay={180}>
+            <a
+              href="https://vizus.xyz/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mx-auto mt-8 flex max-w-2xl items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.04] sm:p-5"
+            >
+              <div
+                className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ring-1 ring-white/10"
+                style={{
+                  background:
+                    "radial-gradient(circle at 30% 30%, rgba(106,0,255,0.18), rgba(11,15,20,0.4))",
+                }}
+              >
+                <Image
+                  src="/partners/vizus-icon.png"
+                  alt="Vizus"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 object-contain"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-brand-text">
+                  In partnership with{" "}
+                  <span className="bg-gradient-to-r from-[#8B5CF6] to-[#3A66FF] bg-clip-text text-transparent">
+                    Vizus
+                  </span>
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-brand-muted">
+                  We build AI systems alongside Vizus, the AI company behind the
+                  3DMates platform. See the full body of our work on their site.
+                </p>
+              </div>
+              <span className="hidden flex-shrink-0 items-center gap-1 text-sm font-semibold text-brand-text sm:flex">
+                Visit
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition group-hover:translate-x-0.5">
+                  <line x1="7" y1="17" x2="17" y2="7" />
+                  <polyline points="7 7 17 7 17 17" />
+                </svg>
+              </span>
+            </a>
+          </ScrollReveal>
         </div>
       </section>
 
