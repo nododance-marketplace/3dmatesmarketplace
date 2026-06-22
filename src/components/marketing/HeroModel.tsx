@@ -1,12 +1,12 @@
 "use client";
 
-import { Suspense, useRef, useEffect, useState } from "react";
+import { Suspense, useRef, useEffect, useState, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Environment, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
 function Model() {
-  const { scene } = useGLTF("/models/3dmates-hero.glb");
+  const { scene: original } = useGLTF("/models/3dmates-hero.glb");
   const groupRef = useRef<THREE.Group>(null);
   const scrollRef = useRef(0);
   const maxScrollRef = useRef(1);
@@ -38,35 +38,41 @@ function Model() {
     };
   }, []);
 
-  // Center and scale the model
-  useEffect(() => {
-    if (scene) {
-      const box = new THREE.Box3().setFromObject(scene);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 2.9 / maxDim;
+  // Clone + normalize the model synchronously (before first paint) so it is
+  // always centered and sized consistently. Cloning avoids mutating the shared
+  // useGLTF cache, which previously caused the model to load tiny on remounts.
+  const scene = useMemo(() => {
+    const cloned = original.clone(true);
 
-      scene.scale.setScalar(scale);
-      scene.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+    const box = new THREE.Box3().setFromObject(cloned);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2.9 / maxDim;
 
-      // Apply premium material tweaks
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.castShadow = true;
-          child.receiveShadow = true;
-          if (child.material) {
-            const mat = child.material as THREE.MeshStandardMaterial;
-            if (mat.metalness !== undefined) {
-              mat.metalness = Math.max(mat.metalness, 0.3);
-              mat.roughness = Math.min(mat.roughness, 0.6);
-              mat.envMapIntensity = 1.5;
-            }
-          }
+    cloned.scale.setScalar(scale);
+    cloned.position.set(
+      -center.x * scale,
+      -center.y * scale,
+      -center.z * scale
+    );
+
+    // Premium material tweaks
+    cloned.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        const mat = child.material as THREE.MeshStandardMaterial;
+        if (mat && mat.metalness !== undefined) {
+          mat.metalness = Math.max(mat.metalness, 0.3);
+          mat.roughness = Math.min(mat.roughness, 0.6);
+          mat.envMapIntensity = 1.5;
         }
-      });
-    }
-  }, [scene]);
+      }
+    });
+
+    return cloned;
+  }, [original]);
 
   useFrame((_, delta) => {
     if (!groupRef.current || reducedMotion) return;
