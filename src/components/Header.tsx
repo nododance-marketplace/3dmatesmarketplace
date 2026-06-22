@@ -43,6 +43,12 @@ export default function Header() {
             Jobs
           </Link>
           <Link
+            href="/printers"
+            className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
+          >
+            Printers
+          </Link>
+          <Link
             href="/about"
             className="text-[13px] font-medium tracking-wide text-brand-muted transition hover:text-brand-text"
           >
@@ -135,6 +141,13 @@ export default function Header() {
               className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
             >
               Jobs
+            </Link>
+            <Link
+              href="/printers"
+              onClick={() => setMobileOpen(false)}
+              className="text-[13px] font-medium tracking-wide text-brand-muted hover:text-brand-text"
+            >
+              Printers
             </Link>
             <Link
               href="/about"
