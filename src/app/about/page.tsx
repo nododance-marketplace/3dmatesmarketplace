@@ -21,7 +21,7 @@ type Member = {
   link?: { href: string; label: string };
   bio: string;
   highlights: string[];
-  accent: "cyan" | "violet" | "amber" | "emerald" | "rose" | "sky";
+  accent: "cyan" | "violet" | "amber" | "emerald" | "rose";
 };
 
 const team: Member[] = [
@@ -42,20 +42,6 @@ const team: Member[] = [
       "Learning NVIDIA Omniverse",
     ],
     accent: "cyan",
-  },
-  {
-    name: "Ray",
-    role: "Co-Founder & Systems Architect",
-    initials: "R",
-    image: "/team/ray.png",
-    badge: "Firearms-Industry 3D Printing",
-    bio: "Ray is a co-founder of 3DMates and one of its technical leads. He brings deep, hands-on 3D printing expertise from the firearms industry — where precision, repeatability, and tight tolerances are non-negotiable — and designs the system architecture that ties our platform and deployments together. He turns complex requirements into clean, scalable systems built to perform under real-world demands.",
-    highlights: [
-      "Co-founder & systems architecture designer",
-      "3D printing expertise from the firearms industry",
-      "Precision, high-tolerance manufacturing",
-    ],
-    accent: "sky",
   },
   {
     name: "Kevin Wang",
@@ -164,12 +150,6 @@ const accentMap: Record<
     bg: "bg-rose-900/20",
     text: "text-rose-300",
     badge: "border-rose-700/30 bg-rose-900/20 text-rose-300",
-  },
-  sky: {
-    ring: "ring-sky-700/30",
-    bg: "bg-sky-900/20",
-    text: "text-sky-300",
-    badge: "border-sky-700/30 bg-sky-900/20 text-sky-300",
   },
 };
 
